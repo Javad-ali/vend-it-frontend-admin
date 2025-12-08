@@ -3,8 +3,16 @@ import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface Metrics {
+  totalUsers: number;
+  totalOrders: number;
+  totalRevenue: number;
+  activeMachines: number;
+}
+
 export default function Dashboard() {
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchDashboard();
