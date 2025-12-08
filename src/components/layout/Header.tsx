@@ -3,13 +3,13 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { admin, logout } = useAuth();
 
     return (
         <header className="bg-white shadow-sm">
             <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center space-x-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Welcome, {user?.name || 'Admin'}</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">Welcome, {admin?.name || 'Admin'}</h2>
                 </div>
                 <div className="flex items-center space-x-4">
                     <Link
