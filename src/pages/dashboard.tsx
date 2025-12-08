@@ -1,62 +1,76 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const DashboardPage: React.FC = () => {
+export default function Dashboard() {
+  const [metrics, setMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+  const fetchDashboard = async () => {
+    try {
+      const response = await api.get('/admin/dashboard');
+      setMetrics(response.data.data.metrics);
+    } catch (error) {
+      console.error('Failed to fetch dashboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (loading) {
     return (
-        <Layout>
-            <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Dashboard</h1>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold">1,234</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-gray-600">Active Machines</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold">45</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold">5,678</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-gray-600">Revenue</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold">$12,345</p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-gray-500">No recent activity to display.</p>
-                    </CardContent>
-                </Card>
-            </div>
-        </Layout>
+      <Layout>
+        <div>Loading...</div>
+      </Layout>
     );
-};
-
-export default DashboardPage;
+  }
+  return (
+    <ProtectedRoute>
+      <Layout>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics?.totalUsers || 0}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics?.totalOrders || 0}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">KWD {metrics?.totalRevenue || 0}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Machines</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics?.activeMachines || 0}</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    </ProtectedRoute>
+  );
+}

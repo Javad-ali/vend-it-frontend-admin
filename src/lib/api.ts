@@ -1,72 +1,32 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
-
-interface RequestOptions extends RequestInit {
-    token?: string;
-}
-
-class ApiClient {
-    private baseUrl: string;
-
-    constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+import axios from 'axios';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+export const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-
-    private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-        const { token, ...fetchOptions } = options;
-
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-            ...fetchOptions.headers,
-        };
-
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            ...fetchOptions,
-            headers,
-        });
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Request failed' }));
-            throw new Error(error.message || `HTTP ${response.status}`);
-        }
-
-        return response.json();
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/login';
     }
-
-    async get<T>(endpoint: string, token?: string): Promise<T> {
-        return this.request<T>(endpoint, { method: 'GET', token });
-    }
-
-    async post<T>(endpoint: string, data: any, token?: string): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'POST',
-            body: JSON.stringify(data),
-            token,
-        });
-    }
-
-    async put<T>(endpoint: string, data: any, token?: string): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-            token,
-        });
-    }
-
-    async delete<T>(endpoint: string, token?: string): Promise<T> {
-        return this.request<T>(endpoint, { method: 'DELETE', token });
-    }
-
-    async patch<T>(endpoint: string, data: any, token?: string): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'PATCH',
-            body: JSON.stringify(data),
-            token,
-        });
-    }
-}
-
-export const api = new ApiClient(API_BASE_URL);
+    return Promise.reject(error);
+  }
+);
+export default api;
