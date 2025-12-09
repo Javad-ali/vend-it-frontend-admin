@@ -1,18 +1,66 @@
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { useGetDashboardQuery } from '@/store/api/adminApi';
 import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react';
+import { RevenueChart } from '@/components/dashboard/RevenueChart';
+import { OrdersChart } from '@/components/dashboard/OrdersChart';
+import { UserGrowthChart } from '@/components/dashboard/UserGrowthChart';
+import { MachineStatusChart } from '@/components/dashboard/MachineStatusChart';
+import { formatCurrency } from '@/lib/utils';
 
 export default function Dashboard() {
   const { data, isLoading, error } = useGetDashboardQuery(undefined);
   const metrics = data?.data?.metrics;
 
+  // Mock data for charts (replace with actual API data when available)
+  const revenueData = [
+    { date: '2024-01-01', revenue: 1200 },
+    { date: '2024-01-02', revenue: 1800 },
+    { date: '2024-01-03', revenue: 1500 },
+    { date: '2024-01-04', revenue: 2200 },
+    { date: '2024-01-05', revenue: 2800 },
+    { date: '2024-01-06', revenue: 2400 },
+    { date: '2024-01-07', revenue: 3200 },
+  ];
+
+  const ordersData = [
+    { date: '2024-01-01', orders: 45 },
+    { date: '2024-01-02', orders: 62 },
+    { date: '2024-01-03', orders: 58 },
+    { date: '2024-01-04', orders: 75 },
+    { date: '2024-01-05', orders: 89 },
+    { date: '2024-01-06', orders: 82 },
+    { date: '2024-01-07', orders: 95 },
+  ];
+
+  const userGrowthData = [
+    { month: 'Jan', users: 120 },
+    { month: 'Feb', users: 185 },
+    { month: 'Mar', users: 240 },
+    { month: 'Apr', users: 320 },
+    { month: 'May', users: 280 },
+    { month: 'Jun', users: 350 },
+  ];
+
+  const machineStatusData = [
+    { name: 'Active', value: metrics?.activeMachines || 12 },
+    { name: 'Inactive', value: 3 },
+    { name: 'Maintenance', value: 2 },
+  ];
+
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading...</div>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">Welcome to Vend-IT Admin Panel</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <CardSkeleton count={4} />
+          </div>
         </div>
       </Layout>
     );
@@ -37,6 +85,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Welcome to Vend-IT Admin Panel</p>
           </div>
 
+          {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -67,7 +116,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  KWD {metrics?.totalRevenue?.toFixed(2) || '0.00'}
+                  {formatCurrency(metrics?.totalRevenue || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground">Total earnings</p>
               </CardContent>
@@ -83,6 +132,17 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Vending machines</p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Charts Grid */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <RevenueChart data={revenueData} />
+            <MachineStatusChart data={machineStatusData} />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <OrdersChart data={ordersData} />
+            <UserGrowthChart data={userGrowthData} />
           </div>
         </div>
       </Layout>

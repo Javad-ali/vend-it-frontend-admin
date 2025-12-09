@@ -1,46 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { useGetContentQuery, useUpdateContentMutation } from '@/store/api/adminApi';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export default function Content() {
-    const [loading, setLoading] = useState(true);
+    const { data, isLoading, error } = useGetContentQuery(undefined);
+    const [updateContent] = useUpdateContentMutation();
+
     const [saving, setSaving] = useState(false);
     const [content, setContent] = useState({
-        aboutUs: '',
-        termsAndConditions: '',
-        privacyPolicy: '',
+        aboutUs: data?.data?.aboutUs || '',
+        termsAndConditions: data?.data?.termsAndConditions || '',
+        privacyPolicy: data?.data?.privacyPolicy || '',
     });
-
-    useEffect(() => {
-        fetchContent();
-    }, []);
-
-    const fetchContent = async () => {
-        try {
-            const response = await api.get('/admin/content');
-            setContent({
-                aboutUs: response.data.data.aboutUs || '',
-                termsAndConditions: response.data.data.termsAndConditions || '',
-                privacyPolicy: response.data.data.privacyPolicy || '',
-            });
-        } catch (error) {
-            toast.error('Failed to fetch content');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSave = async () => {
         setSaving(true);
         try {
-            await api.put('/admin/content', content);
+            await updateContent(content).unwrap();
             toast.success('Content updated successfully');
         } catch (error) {
             toast.error('Failed to update content');
@@ -49,11 +33,25 @@ export default function Content() {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
+        return (
+            <Layout>
+                <div className="space-y-6">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Content Management</h1>
+                        <p className="text-muted-foreground">Manage static content and legal pages</p>
+                    </div>
+                    <CardSkeleton count={1} />
+                </div>
+            </Layout>
+        );
+    }
+
+    if (error) {
         return (
             <Layout>
                 <div className="flex items-center justify-center h-64">
-                    <div className="text-lg">Loading...</div>
+                    <div className="text-lg text-red-500">Failed to load content</div>
                 </div>
             </Layout>
         );
@@ -89,6 +87,7 @@ export default function Content() {
                                             value={content.aboutUs}
                                             onChange={(e) => setContent({ ...content, aboutUs: e.target.value })}
                                             rows={15}
+                                            className="font-mono text-sm"
                                         />
                                     </div>
                                     <Button onClick={handleSave} disabled={saving}>
@@ -112,6 +111,7 @@ export default function Content() {
                                             value={content.termsAndConditions}
                                             onChange={(e) => setContent({ ...content, termsAndConditions: e.target.value })}
                                             rows={15}
+                                            className="font-mono text-sm"
                                         />
                                     </div>
                                     <Button onClick={handleSave} disabled={saving}>
@@ -135,6 +135,7 @@ export default function Content() {
                                             value={content.privacyPolicy}
                                             onChange={(e) => setContent({ ...content, privacyPolicy: e.target.value })}
                                             rows={15}
+                                            className="font-mono text-sm"
                                         />
                                     </div>
                                     <Button onClick={handleSave} disabled={saving}>

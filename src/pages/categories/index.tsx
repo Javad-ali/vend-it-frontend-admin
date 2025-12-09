@@ -1,30 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { toast } from 'sonner';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Download } from 'lucide-react';
+import { useGetCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/store/api/adminApi';
+import { usePagination } from '@/hooks/usePagination';
+import { exportToCSV } from '@/lib/export';
 
 interface Category {
     id: string;
@@ -34,169 +25,138 @@ interface Category {
 }
 
 export default function Categories() {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const pagination = usePagination(10);
+    const { data, isLoading, error } = useGetCategoriesQuery(undefined);
+    const [createCategory] = useCreateCategoryMutation();
+    const [updateCategory] = useUpdateCategoryMutation();
 
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        icon: null as File | null,
-    });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [formData, setFormData] = useState({ name: '', description: '', icon: null as File | null });
+
+    const categories = data?.data?.categories || [];
+
+    const filteredCategories = useMemo(() => {
+        if (!searchTerm) return categories;
+        return categories.filter((c: Category) =>
+            c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [searchTerm, categories]);
+
+    const paginatedCategories = useMemo(() => {
+        const startIndex = (pagination.page - 1) * pagination.limit;
+        return filteredCategories.slice(startIndex, startIndex + pagination.limit);
+    }, [filteredCategories, pagination.page, pagination.limit]);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        pagination.setTotal(filteredCategories.length);
+    }, [filteredCategories.length, pagination]);
 
-    const fetchCategories = async () => {
-        try {
-            const response = await api.get('/admin/categories');
-            setCategories(response.data.data.categories || []);
-        } catch (error) {
-            toast.error('Failed to fetch categories');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleCreate = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            const data = new FormData();
-            data.append('name', formData.name);
-            data.append('description', formData.description);
-            if (formData.icon) {
-                data.append('icon', formData.icon);
-            }
-
-            await api.post('/admin/categories', data, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
-            toast.success('Category created successfully');
-            setIsCreateOpen(false);
-            resetForm();
-            fetchCategories();
-        } catch (error) {
-            toast.error('Failed to create category');
-        }
-    };
-
-    const handleEdit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedCategory) return;
+        const formDataToSend = new FormData();
+        formDataToSend.append('name', formData.name);
+        formDataToSend.append('description', formData.description);
+        if (formData.icon) formDataToSend.append('icon', formData.icon);
 
         try {
-            const data = new FormData();
-            data.append('name', formData.name);
-            data.append('description', formData.description);
-            if (formData.icon) {
-                data.append('icon', formData.icon);
+            if (editingCategory) {
+                await updateCategory({ id: editingCategory.id, formData: formDataToSend }).unwrap();
+                toast.success('Category updated successfully');
+            } else {
+                await createCategory(formDataToSend).unwrap();
+                toast.success('Category created successfully');
             }
-
-            await api.put(`/admin/categories/${selectedCategory.id}`, data, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
-            toast.success('Category updated successfully');
-            setIsEditOpen(false);
+            setIsDialogOpen(false);
             resetForm();
-            fetchCategories();
         } catch (error) {
-            toast.error('Failed to update category');
+            toast.error(editingCategory ? 'Failed to update category' : 'Failed to create category');
         }
     };
 
     const resetForm = () => {
-        setFormData({
-            name: '',
-            description: '',
-            icon: null,
-        });
-        setSelectedCategory(null);
+        setFormData({ name: '', description: '', icon: null });
+        setEditingCategory(null);
     };
 
     const openEdit = (category: Category) => {
-        setSelectedCategory(category);
-        setFormData({
-            name: category.name,
-            description: category.description || '',
-            icon: null,
-        });
-        setIsEditOpen(true);
+        setEditingCategory(category);
+        setFormData({ name: category.name, description: category.description || '', icon: null });
+        setIsDialogOpen(true);
     };
 
-    if (loading) {
+    const handleExportCSV = () => {
+        exportToCSV(filteredCategories, `categories-${new Date().toISOString().split('T')[0]}.csv`, [
+            { key: 'name', label: 'Name' },
+            { key: 'description', label: 'Description' },
+        ]);
+        toast.success('Categories exported successfully');
+    };
+
+    if (isLoading) {
         return (
             <Layout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="text-lg">Loading...</div>
+                <div className="space-y-6">
+                    <h1 className="text-3xl font-bold">Categories</h1>
+                    <TableSkeleton columns={3} rows={10} />
                 </div>
             </Layout>
         );
     }
 
+    if (error) return <Layout><div className="text-red-500">Failed to load categories</div></Layout>;
+
     return (
         <ProtectedRoute>
             <Layout>
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
+                            <h1 className="text-3xl font-bold">Categories</h1>
                             <p className="text-muted-foreground">Manage product categories</p>
                         </div>
-                        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
                             <DialogTrigger asChild>
-                                <Button>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    New Category
-                                </Button>
+                                <Button><Plus className="h-4 w-4 mr-2" />New Category</Button>
                             </DialogTrigger>
                             <DialogContent>
-                                <form onSubmit={handleCreate}>
+                                <form onSubmit={handleSubmit}>
                                     <DialogHeader>
-                                        <DialogTitle>Create Category</DialogTitle>
-                                        <DialogDescription>Add a new product category</DialogDescription>
+                                        <DialogTitle>{editingCategory ? 'Edit' : 'Create'} Category</DialogTitle>
                                     </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="name">Name</Label>
-                                            <Input
-                                                id="name"
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                required
-                                            />
+                                    <div className="space-y-4 py-4">
+                                        <div>
+                                            <Label>Name</Label>
+                                            <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                                         </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="description">Description</Label>
-                                            <Textarea
-                                                id="description"
-                                                value={formData.description}
-                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            />
+                                        <div>
+                                            <Label>Description</Label>
+                                            <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                                         </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="icon">Icon</Label>
-                                            <Input
-                                                id="icon"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => setFormData({ ...formData, icon: e.target.files?.[0] || null })}
-                                            />
+                                        <div>
+                                            <Label>Icon</Label>
+                                            <ImageUpload value={formData.icon || undefined} onChange={(file) => setFormData({ ...formData, icon: file })} />
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit">Create</Button>
+                                        <Button type="submit">{editingCategory ? 'Update' : 'Create'}</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
                         </Dialog>
                     </div>
 
-                    <div className="rounded-md border text-black">
+                    <div className="flex gap-2">
+                        <div className="relative flex-1 max-w-sm">
+                            <Input placeholder="Search categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        </div>
+                        <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                            <Download className="h-4 w-4 mr-2" />CSV
+                        </Button>
+                    </div>
+
+                    <div className="rounded-md border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -206,17 +166,13 @@ export default function Categories() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {categories.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-center text-muted-foreground">
-                                            No categories found
-                                        </TableCell>
-                                    </TableRow>
+                                {paginatedCategories.length === 0 ? (
+                                    <TableRow><TableCell colSpan={3} className="text-center">No categories found</TableCell></TableRow>
                                 ) : (
-                                    categories.map((category) => (
+                                    paginatedCategories.map((category: Category) => (
                                         <TableRow key={category.id}>
                                             <TableCell className="font-medium">{category.name}</TableCell>
-                                            <TableCell className="max-w-md truncate">{category.description || 'N/A'}</TableCell>
+                                            <TableCell>{category.description || 'N/A'}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="sm" onClick={() => openEdit(category)}>
                                                     <Pencil className="h-4 w-4" />
@@ -229,48 +185,9 @@ export default function Categories() {
                         </Table>
                     </div>
 
-                    {/* Edit Dialog */}
-                    <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                        <DialogContent>
-                            <form onSubmit={handleEdit}>
-                                <DialogHeader>
-                                    <DialogTitle>Edit Category</DialogTitle>
-                                    <DialogDescription>Update category details</DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="edit-name">Name</Label>
-                                        <Input
-                                            id="edit-name"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="edit-description">Description</Label>
-                                        <Textarea
-                                            id="edit-description"
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="edit-icon">Icon (optional)</Label>
-                                        <Input
-                                            id="edit-icon"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setFormData({ ...formData, icon: e.target.files?.[0] || null })}
-                                        />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit">Update</Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                    {filteredCategories.length > 0 && (
+                        <Pagination currentPage={pagination.page} totalPages={pagination.totalPages} onPageChange={pagination.setPage} itemsPerPage={pagination.limit} onItemsPerPageChange={pagination.setLimit} />
+                    )}
                 </div>
             </Layout>
         </ProtectedRoute>

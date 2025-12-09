@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/adminApi';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export default function Profile() {
     const { admin } = useAuth();
+    const { data, isLoading } = useGetProfileQuery(undefined);
+    const [updateProfile] = useUpdateProfileMutation();
+
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -18,13 +23,18 @@ export default function Profile() {
     });
 
     useEffect(() => {
-        if (admin) {
+        if (data?.data) {
+            setFormData({
+                name: data.data.name || '',
+                avatar: null,
+            });
+        } else if (admin) {
             setFormData({
                 name: admin.name || '',
                 avatar: null,
             });
         }
-    }, [admin]);
+    }, [data, admin]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,10 +47,7 @@ export default function Profile() {
                 data.append('avatar', formData.avatar);
             }
 
-            await api.put('/admin/profile', data, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
+            await updateProfile(data).unwrap();
             toast.success('Profile updated successfully');
 
             // Update local storage
@@ -56,6 +63,20 @@ export default function Profile() {
             setLoading(false);
         }
     };
+
+    if (isLoading) {
+        return (
+            <Layout>
+                <div className="space-y-6 max-w-2xl">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+                        <p className="text-muted-foreground">Manage your admin profile</p>
+                    </div>
+                    <CardSkeleton count={1} />
+                </div>
+            </Layout>
+        );
+    }
 
     return (
         <ProtectedRoute>
@@ -97,12 +118,12 @@ export default function Profile() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="avatar">Profile Picture</Label>
-                                    <Input
-                                        id="avatar"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setFormData({ ...formData, avatar: e.target.files?.[0] || null })}
+                                    <ImageUpload
+                                        value={formData.avatar || undefined}
+                                        onChange={(file) => setFormData({ ...formData, avatar: file })}
+                                        maxSize={2 * 1024 * 1024} // 2MB
                                     />
+                                    <p className="text-xs text-muted-foreground">Maximum file size: 2MB</p>
                                 </div>
 
                                 <Button type="submit" disabled={loading}>
