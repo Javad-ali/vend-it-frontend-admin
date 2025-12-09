@@ -10,7 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
-import { Eye, Search, Download, Filter } from 'lucide-react';
+import { Server, Search, Download, Filter, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { useGetMachinesQuery, useRegenerateQRMutation } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
