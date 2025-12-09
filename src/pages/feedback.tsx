@@ -1,57 +1,45 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { toast } from 'sonner';
 import { Search, Star, Download, Filter } from 'lucide-react';
 import { useGetFeedbackQuery } from '@/store/api/adminApi';
-import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { formatDate } from '@/lib/utils';
 import type { Feedback } from '@/types/api';
 
 export default function Feedback() {
-    const pagination = usePagination(10);
-    const { data, isLoading, error } = useGetFeedbackQuery(undefined);
-
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
     const [ratingFilter, setRatingFilter] = useState<string>('all');
 
-    const feedback = data?.data?.feedback || [];
-
-    const filteredFeedback = useMemo(() => {
-        let result = feedback;
-
-        if (searchTerm) {
-            result = result.filter(
-                (item: Feedback) =>
-                    item.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.message?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        if (ratingFilter !== 'all') {
-            const rating = parseInt(ratingFilter);
-            result = result.filter((item: Feedback) => item.rating === rating);
-        }
-
-        return result;
-    }, [searchTerm, ratingFilter, feedback]);
-
-    const paginatedFeedback = useMemo(() => {
-        const startIndex = (pagination.page - 1) * pagination.limit;
-        return filteredFeedback.slice(startIndex, startIndex + pagination.limit);
-    }, [filteredFeedback, pagination.page, pagination.limit]);
-
+    // Debounce search
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     useEffect(() => {
-        pagination.setTotal(filteredFeedback.length);
-    }, [filteredFeedback.length, pagination]);
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data, isLoading, error } = useGetFeedbackQuery({
+        page,
+        limit,
+        search: debouncedSearch || undefined
+    });
+
+    const feedback = data?.data?.feedback || [];
+    const meta = data?.data?.meta;
+
+    // Client-side rating filter (can be moved to backend if needed)
+    const filteredFeedback = ratingFilter !== 'all'
+        ? feedback.filter((item: Feedback) => item.rating === parseInt(ratingFilter))
+        : feedback;
 
     const handleExportCSV = () => {
         exportToCSV(filteredFeedback, `feedback-${new Date().toISOString().split('T')[0]}.csv`, [
@@ -124,11 +112,17 @@ export default function Feedback() {
                                 <Input
                                     placeholder="Search feedback..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
-                            <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                            <Select value={ratingFilter} onValueChange={(val) => {
+                                setRatingFilter(val);
+                                setPage(1);
+                            }}>
                                 <SelectTrigger className="w-[140px]">
                                     <Filter className="h-4 w-4 mr-2" />
                                     <SelectValue placeholder="Rating" />
@@ -167,14 +161,14 @@ export default function Feedback() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedFeedback.length === 0 ? (
+                                {filteredFeedback.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={4} className="text-center text-muted-foreground">
                                             No feedback found
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    paginatedFeedback.map((item: Feedback) => (
+                                    filteredFeedback.map((item: Feedback) => (
                                         <TableRow key={item.id}>
                                             <TableCell>{item.user_name || 'Anonymous'}</TableCell>
                                             <TableCell className="max-w-md">{item.message}</TableCell>
@@ -187,13 +181,16 @@ export default function Feedback() {
                         </Table>
                     </div>
 
-                    {filteredFeedback.length > 0 && (
+                    {meta && meta.total > 0 && (
                         <Pagination
-                            currentPage={pagination.page}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.setPage}
-                            itemsPerPage={pagination.limit}
-                            onItemsPerPageChange={pagination.setLimit}
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            onPageChange={setPage}
+                            itemsPerPage={limit}
+                            onItemsPerPageChange={(newLimit) => {
+                                setLimit(newLimit);
+                                setPage(1);
+                            }}
                         />
                     )}
                 </div>
