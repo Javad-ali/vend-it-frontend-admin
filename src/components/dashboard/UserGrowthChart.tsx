@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -10,7 +11,7 @@ interface UserGrowthChartProps {
     data: UserGrowthData[]
 }
 
-export function UserGrowthChart({ data }: UserGrowthChartProps) {
+const UserGrowthChartComponent = ({ data }: UserGrowthChartProps) => {
     return (
         <Card className="col-span-3">
             <CardHeader>
@@ -40,3 +41,10 @@ export function UserGrowthChart({ data }: UserGrowthChartProps) {
         </Card>
     )
 }
+
+// Memoize to prevent unnecessary re-renders
+export const UserGrowthChart = memo(UserGrowthChartComponent, (prevProps, nextProps) => {
+    return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+});
+
+UserGrowthChart.displayName = 'UserGrowthChart';

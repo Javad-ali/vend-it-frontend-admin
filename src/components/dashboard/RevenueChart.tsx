@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { formatCurrency } from "@/lib/utils"
@@ -11,7 +12,7 @@ interface RevenueChartProps {
     data: RevenueData[]
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+const RevenueChartComponent = ({ data }: RevenueChartProps) => {
     return (
         <Card className="col-span-4">
             <CardHeader>
@@ -50,3 +51,11 @@ export function RevenueChart({ data }: RevenueChartProps) {
         </Card>
     )
 }
+
+// Memoize to prevent unnecessary re-renders
+export const RevenueChart = memo(RevenueChartComponent, (prevProps, nextProps) => {
+    // Only re-render if data actually changed
+    return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+});
+
+RevenueChart.displayName = 'RevenueChart';

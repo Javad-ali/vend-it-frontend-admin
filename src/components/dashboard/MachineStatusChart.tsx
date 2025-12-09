@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
@@ -17,7 +18,7 @@ const COLORS: Record<string, string> = {
     maintenance: 'hsl(48, 96%, 53%)',  // yellow
 }
 
-export function MachineStatusChart({ data }: MachineStatusChartProps) {
+const MachineStatusChartComponent = ({ data }: MachineStatusChartProps) => {
     return (
         <Card className="col-span-3">
             <CardHeader>
@@ -51,3 +52,10 @@ export function MachineStatusChart({ data }: MachineStatusChartProps) {
         </Card>
     )
 }
+
+// Memoize to prevent unnecessary re-renders
+export const MachineStatusChart = memo(MachineStatusChartComponent, (prevProps, nextProps) => {
+    return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+});
+
+MachineStatusChart.displayName = 'MachineStatusChart';

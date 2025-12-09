@@ -1,25 +1,47 @@
+import dynamic from 'next/dynamic';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { useGetDashboardQuery, useGetChartDataQuery } from '@/store/api/adminApi';
 import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react';
-import { RevenueChart } from '@/components/dashboard/RevenueChart';
-import { OrdersChart } from '@/components/dashboard/OrdersChart';
-import { UserGrowthChart } from '@/components/dashboard/UserGrowthChart';
-import { MachineStatusChart } from '@/components/dashboard/MachineStatusChart';
 import { formatCurrency } from '@/lib/utils';
+import { useMemo } from 'react';
+
+// Lazy load chart components for better performance
+const RevenueChart = dynamic(() => import('@/components/dashboard/RevenueChart').then(mod => ({ default: mod.RevenueChart })), {
+  loading: () => <CardSkeleton count={1} />,
+  ssr: false // Charts don't need SSR
+});
+
+const OrdersChart = dynamic(() => import('@/components/dashboard/OrdersChart').then(mod => ({ default: mod.OrdersChart })), {
+  loading: () => <CardSkeleton count={1} />,
+  ssr: false
+});
+
+const UserGrowthChart = dynamic(() => import('@/components/dashboard/UserGrowthChart').then(mod => ({ default: mod.UserGrowthChart })), {
+  loading: () => <CardSkeleton count={1} />,
+  ssr: false
+});
+
+const MachineStatusChart = dynamic(() => import('@/components/dashboard/MachineStatusChart').then(mod => ({ default: mod.MachineStatusChart })), {
+  loading: () => <CardSkeleton count={1} />,
+  ssr: false
+});
 
 export default function Dashboard() {
   const { data, isLoading, error } = useGetDashboardQuery(undefined);
   const { data: chartData, isLoading: chartsLoading } = useGetChartDataQuery(undefined);
-  const metrics = data?.data?.metrics;
 
-  // Get chart data from API
-  const revenueData = chartData?.data?.charts?.revenue || [];
-  const ordersData = chartData?.data?.charts?.orders || [];
-  const userGrowthData = chartData?.data?.charts?.userGrowth || [];
-  const machineStatusData = chartData?.data?.charts?.machineStatus || [];
+  const metrics = useMemo(() => data?.data?.metrics, [data]);
+
+  // Memoize chart data to prevent unnecessary recalculations
+  const charts = useMemo(() => ({
+    revenue: chartData?.data?.charts?.revenue || [],
+    orders: chartData?.data?.charts?.orders || [],
+    userGrowth: chartData?.data?.charts?.userGrowth || [],
+    machineStatus: chartData?.data?.charts?.machineStatus || []
+  }), [chartData]);
 
   if (isLoading) {
     return (
@@ -100,21 +122,37 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics?.activeMachines || 0}</div>
-                <p className="text-xs text-muted-foreground">Vending machines</p>
+                <p className="text-muted-foreground">Vending machines</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Charts Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <RevenueChart data={revenueData} />
-            <MachineStatusChart data={machineStatusData} />
-          </div>
+          {/* Charts Grid - Only render if data is loaded */}
+          {!chartsLoading && (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <RevenueChart data={charts.revenue} />
+                <MachineStatusChart data={charts.machineStatus} />
+              </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <OrdersChart data={ordersData} />
-            <UserGrowthChart data={userGrowthData} />
-          </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <OrdersChart data={charts.orders} />
+                <UserGrowthChart data={charts.userGrowth} />
+              </div>
+            </>
+          )}
+
+          {/* Show skeleton while charts loading */}
+          {chartsLoading && (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <CardSkeleton count={2} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <CardSkeleton count={2} />
+              </div>
+            </>
+          )}
         </div>
       </Layout>
     </ProtectedRoute>

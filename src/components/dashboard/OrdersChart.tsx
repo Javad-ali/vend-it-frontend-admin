@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -10,7 +11,7 @@ interface OrdersChartProps {
     data: OrderData[]
 }
 
-export function OrdersChart({ data }: OrdersChartProps) {
+const OrdersChartComponent = ({ data }: OrdersChartProps) => {
     return (
         <Card className="col-span-4">
             <CardHeader>
@@ -45,3 +46,10 @@ export function OrdersChart({ data }: OrdersChartProps) {
         </Card>
     )
 }
+
+// Memoize to prevent unnecessary re-renders
+export const OrdersChart = memo(OrdersChartComponent, (prevProps, nextProps) => {
+    return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+});
+
+OrdersChart.displayName = 'OrdersChart';
