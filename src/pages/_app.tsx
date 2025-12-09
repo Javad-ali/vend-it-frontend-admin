@@ -6,15 +6,23 @@ import { store } from '@/store';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <AuthProvider>
-          <Component {...pageProps} />
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <Component {...pageProps} />
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </Provider>
     </ErrorBoundary>
   );

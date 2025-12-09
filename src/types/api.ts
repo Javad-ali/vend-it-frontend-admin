@@ -80,3 +80,39 @@ export interface PaginatedFeedbackResponse {
         meta: PaginationMeta;
     };
 }
+
+export interface ActivityLog {
+    id: string;
+    admin_name: string;
+    action: 'create' | 'update' | 'delete' | 'login' | 'logout';
+    entity: string; // 'user', 'product', 'order', 'machine', etc.
+    entity_id?: string;
+    details?: string;
+    ip_address?: string;
+    created_at: string;
+}
+
+export interface PaginatedActivityLogsResponse {
+    data: {
+        logs: ActivityLog[];
+        meta: PaginationMeta;
+    };
+}
+
+export interface Notification {
+    id: string;
+    title: string;
+    message: string;
+    type: 'info' | 'success' | 'warning' | 'error';
+    read: boolean;
+    link?: string;
+    created_at: string;
+}
+
+export interface PaginatedNotificationsResponse {
+    data: {
+        notifications: Notification[];
+        meta: PaginationMeta;
+        unreadCount: number;
+    };
+}

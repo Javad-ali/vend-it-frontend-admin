@@ -15,19 +15,20 @@ const Sidebar: React.FC = () => {
         { href: '/categories', label: 'Categories', icon: '📑' },
         { href: '/feedback', label: 'Feedback', icon: '💬' },
         { href: '/content', label: 'Content', icon: '📝' },
+        { href: '/activity-logs', label: 'Activity Logs', icon: '🕒' },
     ];
 
     return (
-        <aside className="w-64 bg-white shadow-lg">
+        <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg border-r dark:border-gray-700">
             <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Admin Panel</h1>
             </div>
             <nav className="mt-6">
                 {menuItems.map((item) => (
                     <Link
                         key={item.href}
                         href={item.href}
-                        className={`flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 ${router.pathname.startsWith(item.href) ? 'bg-gray-100 border-l-4 border-blue-500' : ''
+                        className={`flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${router.pathname.startsWith(item.href) ? 'bg-gray-100 dark:bg-gray-700 border-l-4 border-blue-500 dark:border-blue-400' : ''
                             }`}
                     >
                         <span className="mr-3">{item.icon}</span>

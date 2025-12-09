@@ -30,7 +30,7 @@ export const adminApi = createApi({
             return headers;
         },
     }),
-    tagTypes: ['Dashboard', 'Users', 'Machines', 'Products', 'Orders', 'Campaigns', 'Categories', 'Feedback', 'Content'],
+    tagTypes: ['Dashboard', 'Users', 'Machines', 'Products', 'Orders', 'Campaigns', 'Categories', 'Feedback', 'Content', 'ActivityLogs', 'Notifications'],
     endpoints: (builder) => ({
         // Auth
         login: builder.mutation({
@@ -239,6 +239,38 @@ export const adminApi = createApi({
                 body: formData,
             }),
         }),
+
+        // Activity Logs
+        getActivityLogs: builder.query({
+            query: (params = {}) => ({
+                url: '/admin/activity-logs',
+                params
+            }),
+            providesTags: ['ActivityLogs'],
+        }),
+
+        // Notifications
+        getNotifications: builder.query({
+            query: (params = {}) => ({
+                url: '/admin/notifications',
+                params
+            }),
+            providesTags: ['Notifications'],
+        }),
+        markNotificationAsRead: builder.mutation({
+            query: (id: string) => ({
+                url: `/admin/notifications/${id}/read`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
+        markAllNotificationsAsRead: builder.mutation({
+            query: () => ({
+                url: '/admin/notifications/mark-all-read',
+                method: 'POST',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
     }),
 });
 
@@ -270,4 +302,8 @@ export const {
     useUpdateContentMutation,
     useGetProfileQuery,
     useUpdateProfileMutation,
+    useGetActivityLogsQuery,
+    useGetNotificationsQuery,
+    useMarkNotificationAsReadMutation,
+    useMarkAllNotificationsAsReadMutation,
 } = adminApi;
