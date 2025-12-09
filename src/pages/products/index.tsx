@@ -22,54 +22,28 @@ interface Product {
 }
 
 export default function Products() {
-    const pagination = usePagination(10);
-    const { data, isLoading, error } = useGetProductsQuery(undefined);
-
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data, isLoading, error } = useGetProductsQuery({
+        page,
+        limit,
+        search: debouncedSearch || undefined
+    });
 
     const products = data?.data?.products || [];
-
-    // Get unique categories for filter
-    const categories = useMemo<string[]>(() => {
-        const uniqueCategories = new Set(products.map((p: Product) => p.category).filter(Boolean));
-        return Array.from(uniqueCategories) as string[];
-    }, [products]);
-
-    // Filter products
-    const filteredProducts = useMemo(() => {
-        let result = products;
-
-        if (searchTerm) {
-            result = result.filter(
-                (product: Product) =>
-                    product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    product.brand_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    product.product_u_id?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        if (categoryFilter !== 'all') {
-            result = result.filter((product: Product) => product.category === categoryFilter);
-        }
-
-        return result;
-    }, [searchTerm, categoryFilter, products]);
-
-    // Paginate products
-    const paginatedProducts = useMemo(() => {
-        const startIndex = (pagination.page - 1) * pagination.limit;
-        const endIndex = startIndex + pagination.limit;
-        return filteredProducts.slice(startIndex, endIndex);
-    }, [filteredProducts, pagination.page, pagination.limit]);
-
-    useEffect(() => {
-        pagination.setTotal(filteredProducts.length);
-    }, [filteredProducts.length, pagination]);
+    const meta = data?.data?.meta;
 
     const handleExportCSV = () => {
         exportToCSV(
-            filteredProducts,
+            products,
             `products-${new Date().toISOString().split('T')[0]}.csv`,
             [
                 { key: 'product_u_id', label: 'Product ID' },
@@ -83,7 +57,7 @@ export default function Products() {
 
     const handleExportExcel = () => {
         exportToExcel(
-            filteredProducts,
+            products,
             `products-${new Date().toISOString().split('T')[0]}`,
             'Products',
             [
@@ -136,26 +110,13 @@ export default function Products() {
                                 <Input
                                     placeholder="Search products..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
-                            {categories.length > 0 && (
-                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        <SelectValue placeholder="Category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Categories</SelectItem>
-                                        {categories.map((category: string) => (
-                                            <SelectItem key={category} value={category}>
-                                                {category}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            )}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -182,14 +143,14 @@ export default function Products() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedProducts.length === 0 ? (
+                                {products.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center text-muted-foreground">
                                             No products found
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    paginatedProducts.map((product: Product) => (
+                                    products.map((product: Product) => (
                                         <TableRow key={product.product_u_id}>
                                             <TableCell className="font-mono text-sm">{product.product_u_id}</TableCell>
                                             <TableCell>{product.description || 'N/A'}</TableCell>
@@ -209,13 +170,16 @@ export default function Products() {
                         </Table>
                     </div>
 
-                    {filteredProducts.length > 0 && (
+                    {meta && meta.total > 0 && (
                         <Pagination
-                            currentPage={pagination.page}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.setPage}
-                            itemsPerPage={pagination.limit}
-                            onItemsPerPageChange={pagination.setLimit}
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            onPageChange={setPage}
+                            itemsPerPage={limit}
+                            onItemsPerPageChange={(newLimit) => {
+                                setLimit(newLimit);
+                                setPage(1);
+                            }}
                         />
                     )}
                 </div>

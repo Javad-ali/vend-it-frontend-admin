@@ -48,8 +48,16 @@ export const adminApi = createApi({
         }),
 
         // Users
-        getUsers: builder.query({
-            query: () => '/admin/users',
+        getUsers: builder.query<any, {
+            page?: number;
+            limit?: number;
+            status?: number;
+            search?: string;
+        } | undefined>({
+            query: (params = {}) => ({
+                url: '/admin/users',
+                params
+            }),
             providesTags: ['Users'],
         }),
         getUserDetails: builder.query({
@@ -73,8 +81,16 @@ export const adminApi = createApi({
         }),
 
         // Machines
-        getMachines: builder.query({
-            query: () => '/admin/machines',
+        getMachines: builder.query<any, {
+            page?: number;
+            limit?: number;
+            status?: string;
+            search?: string;
+        } | undefined>({
+            query: (params = {}) => ({
+                url: '/admin/machines',
+                params
+            }),
             providesTags: ['Machines'],
         }),
         getMachineProducts: builder.query({
@@ -89,8 +105,15 @@ export const adminApi = createApi({
         }),
 
         // Products
-        getProducts: builder.query({
-            query: () => '/admin/products',
+        getProducts: builder.query<any, {
+            page?: number;
+            limit?: number;
+            search?: string;
+        } | undefined>({
+            query: (params = {}) => ({
+                url: '/admin/products',
+                params
+            }),
             providesTags: ['Products'],
         }),
         getProductDetails: builder.query({
@@ -99,8 +122,16 @@ export const adminApi = createApi({
         }),
 
         // Orders
-        getOrders: builder.query({
-            query: () => '/admin/orders',
+        getOrders: builder.query<any, {
+            page?: number;
+            limit?: number;
+            status?: string;
+            search?: string;
+        } | undefined>({
+            query: (params = {}) => ({
+                url: '/admin/orders',
+                params
+            }),
             providesTags: ['Orders'],
         }),
         getOrderDetails: builder.query({
@@ -160,8 +191,15 @@ export const adminApi = createApi({
         }),
 
         // Feedback
-        getFeedback: builder.query({
-            query: () => '/admin/feedback',
+        getFeedback: builder.query<any, {
+            page?: number;
+            limit?: number;
+            search?: string;
+        } | undefined>({
+            query: (params = {}) => ({
+                url: '/admin/feedback',
+                params
+            }),
             providesTags: ['Feedback'],
         }),
 

@@ -25,47 +25,31 @@ interface Order {
 }
 
 export default function Orders() {
-    const pagination = usePagination(10);
-    const { data, isLoading, error } = useGetOrdersQuery(undefined);
-
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
 
-    const orders = data?.data?.orders || [];
-
-    // Filter orders
-    const filteredOrders = useMemo(() => {
-        let result = orders;
-
-        if (searchTerm) {
-            result = result.filter(
-                (order: Order) =>
-                    order.order_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    order.user_name?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        if (statusFilter !== 'all') {
-            result = result.filter((order: Order) => order.status?.toLowerCase() === statusFilter);
-        }
-
-        return result;
-    }, [searchTerm, statusFilter, orders]);
-
-    // Paginate orders
-    const paginatedOrders = useMemo(() => {
-        const startIndex = (pagination.page - 1) * pagination.limit;
-        const endIndex = startIndex + pagination.limit;
-        return filteredOrders.slice(startIndex, endIndex);
-    }, [filteredOrders, pagination.page, pagination.limit]);
-
+    // Debounce search
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     useEffect(() => {
-        pagination.setTotal(filteredOrders.length);
-    }, [filteredOrders.length, pagination]);
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data, isLoading, error } = useGetOrdersQuery({
+        page,
+        limit,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: debouncedSearch || undefined
+    });
+
+    const orders = data?.data?.orders || [];
+    const meta = data?.data?.meta;
 
     const handleExportCSV = () => {
         exportToCSV(
-            filteredOrders,
+            orders,
             `orders-${new Date().toISOString().split('T')[0]}.csv`,
             [
                 { key: 'order_id', label: 'Order ID' },
@@ -80,7 +64,7 @@ export default function Orders() {
 
     const handleExportExcel = () => {
         exportToExcel(
-            filteredOrders,
+            orders,
             `orders-${new Date().toISOString().split('T')[0]}`,
             'Orders',
             [
@@ -134,11 +118,17 @@ export default function Orders() {
                                 <Input
                                     placeholder="Search orders..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={statusFilter} onValueChange={(val) => {
+                                setStatusFilter(val);
+                                setPage(1);
+                            }}>
                                 <SelectTrigger className="w-[160px]">
                                     <Filter className="h-4 w-4 mr-2" />
                                     <SelectValue placeholder="Status" />
@@ -178,14 +168,14 @@ export default function Orders() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedOrders.length === 0 ? (
+                                {orders.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="text-center text-muted-foreground">
                                             No orders found
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    paginatedOrders.map((order: Order) => (
+                                    orders.map((order: Order) => (
                                         <TableRow key={order.order_id}>
                                             <TableCell className="font-mono text-sm">{order.order_id}</TableCell>
                                             <TableCell>{order.user_name || 'N/A'}</TableCell>
@@ -212,13 +202,16 @@ export default function Orders() {
                         </Table>
                     </div>
 
-                    {filteredOrders.length > 0 && (
+                    {meta && meta.total > 0 && (
                         <Pagination
-                            currentPage={pagination.page}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.setPage}
-                            itemsPerPage={pagination.limit}
-                            onItemsPerPageChange={pagination.setLimit}
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            onPageChange={setPage}
+                            itemsPerPage={limit}
+                            onItemsPerPageChange={(newLimit) => {
+                                setLimit(newLimit);
+                                setPage(1);
+                            }}
                         />
                     )}
                 </div>

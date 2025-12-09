@@ -35,13 +35,28 @@ interface User {
 }
 
 export default function Users() {
-    const pagination = usePagination(10);
-    const { data, isLoading, error } = useGetUsersQuery(undefined);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+
+    // Debounce search to avoid too many API calls
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data, isLoading, error } = useGetUsersQuery({
+        page,
+        limit,
+        status: statusFilter !== 'all' ? parseInt(statusFilter) : undefined,
+        search: debouncedSearch || undefined
+    });
+
     const [deleteUser] = useDeleteUserMutation();
     const [suspendUser] = useSuspendUserMutation();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         title: string;
@@ -57,41 +72,7 @@ export default function Users() {
 
     const selection = useBulkSelection<User>();
     const users = data?.data?.users || [];
-
-    // Filter users
-    const filteredUsers = useMemo(() => {
-        let result = users;
-
-        // Search filter
-        if (searchTerm) {
-            result = result.filter(
-                (user: User) =>
-                    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    user.phone?.includes(searchTerm)
-            );
-        }
-
-        // Status filter
-        if (statusFilter !== 'all') {
-            const status = statusFilter === 'active' ? 1 : 0;
-            result = result.filter((user: User) => user.status === status);
-        }
-
-        return result;
-    }, [searchTerm, statusFilter, users]);
-
-    // Paginate users
-    const paginatedUsers = useMemo(() => {
-        const startIndex = (pagination.page - 1) * pagination.limit;
-        const endIndex = startIndex + pagination.limit;
-        return filteredUsers.slice(startIndex, endIndex);
-    }, [filteredUsers, pagination.page, pagination.limit]);
-
-    // Update total when filtered users change
-    useEffect(() => {
-        pagination.setTotal(filteredUsers.length);
-    }, [filteredUsers.length, pagination]);
+    const meta = data?.data?.meta;
 
     const handleSuspend = async (userId: string, currentStatus: number) => {
         const newStatus = currentStatus === 1 ? 0 : 1;
@@ -157,8 +138,8 @@ export default function Users() {
 
     const handleExportCSV = () => {
         const dataToExport = selection.selectedCount > 0
-            ? filteredUsers.filter((user: User) => selection.isSelected(user.id))
-            : filteredUsers;
+            ? users.filter((user: User) => selection.isSelected(user.id))
+            : users;
 
         exportToCSV(
             dataToExport,
@@ -176,8 +157,8 @@ export default function Users() {
 
     const handleExportExcel = () => {
         const dataToExport = selection.selectedCount > 0
-            ? filteredUsers.filter((user: User) => selection.isSelected(user.id))
-            : filteredUsers;
+            ? users.filter((user: User) => selection.isSelected(user.id))
+            : users;
 
         exportToExcel(
             dataToExport,
@@ -233,13 +214,19 @@ export default function Users() {
                             <div className="relative flex-1 max-w-sm">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <Input
-                                    placeholder="Search by name, email, or phone..."
+                                    placeholder="Search users..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={statusFilter} onValueChange={(val) => {
+                                setStatusFilter(val);
+                                setPage(1);
+                            }}>
                                 <SelectTrigger className="w-[140px]">
                                     <Filter className="h-4 w-4 mr-2" />
                                     <SelectValue placeholder="Status" />
@@ -304,8 +291,8 @@ export default function Users() {
                                     <TableHead className="w-12">
                                         <input
                                             type="checkbox"
-                                            checked={selection.isAllSelected(paginatedUsers, (u) => u.id)}
-                                            onChange={() => selection.toggleAll(paginatedUsers, (u) => u.id)}
+                                            checked={selection.isAllSelected(users, (u) => u.id)}
+                                            onChange={() => selection.toggleAll(users, (u) => u.id)}
                                             className="rounded border-gray-300"
                                         />
                                     </TableHead>
@@ -318,14 +305,12 @@ export default function Users() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedUsers.length === 0 ? (
+                                {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center text-muted-foreground">
-                                            No users found
-                                        </TableCell>
+                                        <TableCell colSpan={7} className="text-center">No users found</TableCell>
                                     </TableRow>
                                 ) : (
-                                    paginatedUsers.map((user: User) => (
+                                    users.map((user: User) => (
                                         <TableRow key={user.id}>
                                             <TableCell>
                                                 <input
@@ -377,13 +362,16 @@ export default function Users() {
                     </div>
 
                     {/* Pagination */}
-                    {filteredUsers.length > 0 && (
+                    {meta && meta.total > 0 && (
                         <Pagination
-                            currentPage={pagination.page}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.setPage}
-                            itemsPerPage={pagination.limit}
-                            onItemsPerPageChange={pagination.setLimit}
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            onPageChange={setPage}
+                            itemsPerPage={limit}
+                            onItemsPerPageChange={(newLimit) => {
+                                setLimit(newLimit);
+                                setPage(1);
+                            }}
                         />
                     )}
 

@@ -25,12 +25,27 @@ interface Machine {
 }
 
 export default function Machines() {
-    const pagination = usePagination(10);
-    const { data, isLoading, error } = useGetMachinesQuery(undefined);
-    const [regenerateQR] = useRegenerateQRMutation();
-
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
+
+    // Debounce search
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data, isLoading, error } = useGetMachinesQuery({
+        page,
+        limit,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: debouncedSearch || undefined
+    });
+
+    const [regenerateQR] = useRegenerateQRMutation();
+
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         title: string;
@@ -44,37 +59,7 @@ export default function Machines() {
     });
 
     const machines = data?.data?.machines || [];
-
-    // Filter machines
-    const filteredMachines = useMemo(() => {
-        let result = machines;
-
-        if (searchTerm) {
-            result = result.filter(
-                (machine: Machine) =>
-                    machine.machine_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    machine.machine_u_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    machine.location?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        if (statusFilter !== 'all') {
-            result = result.filter((machine: Machine) => machine.status?.toLowerCase() === statusFilter);
-        }
-
-        return result;
-    }, [searchTerm, statusFilter, machines]);
-
-    // Paginate machines
-    const paginatedMachines = useMemo(() => {
-        const startIndex = (pagination.page - 1) * pagination.limit;
-        const endIndex = startIndex + pagination.limit;
-        return filteredMachines.slice(startIndex, endIndex);
-    }, [filteredMachines, pagination.page, pagination.limit]);
-
-    useEffect(() => {
-        pagination.setTotal(filteredMachines.length);
-    }, [filteredMachines.length, pagination]);
+    const meta = data?.data?.meta;
 
     const handleRegenerateQR = (machineId: string) => {
         setConfirmDialog({
@@ -95,7 +80,7 @@ export default function Machines() {
 
     const handleExportCSV = () => {
         exportToCSV(
-            filteredMachines,
+            machines,
             `machines-${new Date().toISOString().split('T')[0]}.csv`,
             [
                 { key: 'machine_u_id', label: 'Machine ID' },
@@ -109,7 +94,7 @@ export default function Machines() {
 
     const handleExportExcel = () => {
         exportToExcel(
-            filteredMachines,
+            machines,
             `machines-${new Date().toISOString().split('T')[0]}`,
             'Machines',
             [
@@ -162,11 +147,17 @@ export default function Machines() {
                                 <Input
                                     placeholder="Search machines..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
                                     className="pl-10"
                                 />
                             </div>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={statusFilter} onValueChange={(val) => {
+                                setStatusFilter(val);
+                                setPage(1);
+                            }}>
                                 <SelectTrigger className="w-[140px]">
                                     <Filter className="h-4 w-4 mr-2" />
                                     <SelectValue placeholder="Status" />
@@ -204,14 +195,14 @@ export default function Machines() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedMachines.length === 0 ? (
+                                {machines.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center text-muted-foreground">
                                             No machines found
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    paginatedMachines.map((machine: Machine) => (
+                                    machines.map((machine: Machine) => (
                                         <TableRow key={machine.machine_u_id}>
                                             <TableCell className="font-medium">{machine.machine_u_id}</TableCell>
                                             <TableCell>{machine.machine_name || 'N/A'}</TableCell>
@@ -245,13 +236,16 @@ export default function Machines() {
                         </Table>
                     </div>
 
-                    {filteredMachines.length > 0 && (
+                    {meta && meta.total > 0 && (
                         <Pagination
-                            currentPage={pagination.page}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.setPage}
-                            itemsPerPage={pagination.limit}
-                            onItemsPerPageChange={pagination.setLimit}
+                            currentPage={page}
+                            totalPages={meta.totalPages}
+                            onPageChange={setPage}
+                            itemsPerPage={limit}
+                            onItemsPerPageChange={(newLimit) => {
+                                setLimit(newLimit);
+                                setPage(1);
+                            }}
                         />
                     )}
 
