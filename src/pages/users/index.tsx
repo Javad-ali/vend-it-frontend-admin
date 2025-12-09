@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Button } from '@/components/ui/button';
@@ -85,7 +85,7 @@ export default function Users() {
         });
     };
 
-    const handleDelete = async (userId: string) => {
+    const handleDelete = useCallback(async (userId: string) => {
         setConfirmDialog({
             open: true,
             title: 'Delete User',
@@ -102,23 +102,23 @@ export default function Users() {
                 }
             },
         });
-    };
+    }, [setConfirmDialog, deleteUser, toast, selection]);
 
-    const handleBulkDelete = async () => {
+    const handleBulkDelete = useCallback(async () => {
         if (selection.selectedCount === 0) return;
 
         setConfirmDialog({
             open: true,
-            title: 'Delete Multiple Users',
+            title: 'Delete Selected Users',
             description: `Are you sure you want to delete ${selection.selectedCount} user(s)? This action cannot be undone.`,
             variant: 'destructive',
             action: async () => {
                 try {
-                    const promises = Array.from(selection.selectedIds).map(id =>
-                        deleteUser(id).unwrap()
+                    // Delete all selected users
+                    await Promise.all(
+                        Array.from(selection.selectedIds).map(id => deleteUser(id).unwrap())
                     );
-                    await Promise.all(promises);
-                    toast.success(`Successfully deleted ${selection.selectedCount} user(s)`);
+                    toast.success(`${selection.selectedCount} user(s) deleted successfully`);
                     selection.clearSelection();
                 } catch (error) {
                     toast.error('Failed to delete some users');
@@ -126,7 +126,7 @@ export default function Users() {
                 }
             },
         });
-    };
+    }, [selection, setConfirmDialog, deleteUser, toast]);
 
     const handleExportCSV = () => {
         const dataToExport = selection.selectedCount > 0
