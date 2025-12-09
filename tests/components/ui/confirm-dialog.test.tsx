@@ -91,7 +91,9 @@ describe('ConfirmDialog Component', () => {
   });
 
   it('should disable buttons while loading', async () => {
-    const slowConfirm = jest.fn(() => new Promise((resolve) => setTimeout(resolve, 1000)));
+    const slowConfirm = jest.fn(
+      (): Promise<void> => new Promise((resolve) => setTimeout(() => resolve(), 1000))
+    );
 
     render(
       <ConfirmDialog
