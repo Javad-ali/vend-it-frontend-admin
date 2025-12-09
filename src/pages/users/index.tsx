@@ -24,15 +24,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useBulkSelection } from '@/hooks/useBulkSelection';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { formatDate } from '@/lib/utils';
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    status: number;
-    createdAt: string;
-}
+import type { User } from '@/types/api';
 
 export default function Users() {
     const [page, setPage] = useState(1);

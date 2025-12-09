@@ -13,13 +13,7 @@ import Link from 'next/link';
 import { useGetProductsQuery } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
-
-interface Product {
-    product_u_id: string;
-    description: string;
-    brand_name?: string;
-    category?: string;
-}
+import type { Product } from '@/types/api';
 
 export default function Products() {
     const [page, setPage] = useState(1);

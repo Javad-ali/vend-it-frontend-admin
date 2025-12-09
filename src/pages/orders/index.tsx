@@ -15,14 +15,7 @@ import { useGetOrdersQuery } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { formatCurrency, formatDate, getStatusVariant } from '@/lib/utils';
-
-interface Order {
-    order_id: string;
-    user_name?: string;
-    total_amount?: number;
-    status?: string;
-    created_at: string;
-}
+import type { Order } from '@/types/api';
 
 export default function Orders() {
     const [page, setPage] = useState(1);

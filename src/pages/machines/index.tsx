@@ -10,19 +10,13 @@ import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
-import { Server, Search, QrCode, Download, Filter } from 'lucide-react';
+import { Eye, Search, Download, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { useGetMachinesQuery, useRegenerateQRMutation } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
+import type { Machine } from '@/types/api';
 import { formatDate, getStatusVariant } from '@/lib/utils';
-
-interface Machine {
-    machine_u_id: string;
-    machine_name: string;
-    location?: string;
-    status?: string;
-}
 
 export default function Machines() {
     const [page, setPage] = useState(1);

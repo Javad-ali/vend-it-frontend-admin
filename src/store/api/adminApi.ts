@@ -1,6 +1,13 @@
 // src/store/api/adminApi.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '../index';
+import type {
+    PaginatedUsersResponse,
+    PaginatedMachinesResponse,
+    PaginatedProductsResponse,
+    PaginatedOrdersResponse,
+    PaginatedFeedbackResponse
+} from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
@@ -52,7 +59,7 @@ export const adminApi = createApi({
         }),
 
         // Users
-        getUsers: builder.query<any, {
+        getUsers: builder.query<PaginatedUsersResponse, {
             page?: number;
             limit?: number;
             status?: number;
@@ -85,7 +92,7 @@ export const adminApi = createApi({
         }),
 
         // Machines
-        getMachines: builder.query<any, {
+        getMachines: builder.query<PaginatedMachinesResponse, {
             page?: number;
             limit?: number;
             status?: string;
@@ -109,7 +116,7 @@ export const adminApi = createApi({
         }),
 
         // Products
-        getProducts: builder.query<any, {
+        getProducts: builder.query<PaginatedProductsResponse, {
             page?: number;
             limit?: number;
             search?: string;
@@ -126,7 +133,7 @@ export const adminApi = createApi({
         }),
 
         // Orders
-        getOrders: builder.query<any, {
+        getOrders: builder.query<PaginatedOrdersResponse, {
             page?: number;
             limit?: number;
             status?: string;
@@ -195,7 +202,7 @@ export const adminApi = createApi({
         }),
 
         // Feedback
-        getFeedback: builder.query<any, {
+        getFeedback: builder.query<PaginatedFeedbackResponse, {
             page?: number;
             limit?: number;
             search?: string;

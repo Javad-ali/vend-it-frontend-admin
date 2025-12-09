@@ -14,14 +14,7 @@ import { useGetFeedbackQuery } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { formatDate } from '@/lib/utils';
-
-interface Feedback {
-    id: string;
-    user_name?: string;
-    message: string;
-    rating?: number;
-    created_at: string;
-}
+import type { Feedback } from '@/types/api';
 
 export default function Feedback() {
     const pagination = usePagination(10);
