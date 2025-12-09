@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx';
+// Lazy load xlsx to reduce bundle size (~1MB)
+const loadXLSX = () => import('xlsx');
 
 export interface ExportColumn {
   key: string;
@@ -48,19 +49,22 @@ export function exportToCSV<T extends Record<string, any>>(
 }
 
 /**
- * Export data to Excel format
+ * Export data to Excel format (lazy loads xlsx library)
  */
-export function exportToExcel<T extends Record<string, any>>(
+export async function exportToExcel<T extends Record<string, any>>(
   data: T[],
   filename: string,
   sheetName: string = 'Sheet1',
   columns?: ExportColumn[]
-): void {
+): Promise<void> {
   if (data.length === 0) {
     console.warn('No data to export');
     return;
   }
 
+  // Lazy load xlsx library
+  const XLSX = await loadXLSX();
+  
   const formattedData = formatDataForExport(data, columns);
 
   // Create worksheet
