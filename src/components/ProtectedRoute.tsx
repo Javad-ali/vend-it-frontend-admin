@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
   }, [admin, loading, router]);
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
   if (!admin) {
     return null;

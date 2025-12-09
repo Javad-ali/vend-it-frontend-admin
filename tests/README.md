@@ -33,6 +33,7 @@ npm run test:coverage # Coverage report
 ## Coverage Goal
 
 Target: 75% overall coverage
+
 - Functions: 70%+
 - Lines: 75%+
 - Branches: 70%+

@@ -12,12 +12,14 @@ A modern, feature-rich admin dashboard for managing the Vend-IT vending machine 
 ## ✨ Features
 
 ### 📊 **Dashboard Analytics**
+
 - Revenue trend charts (line chart)
 - Orders timeline (area chart)
 - User growth analysis (bar chart)
 - Machine status distribution (pie chart)
 
 ### 👥 **User Management**
+
 - Pagination with configurable rows per page
 - Advanced filtering (status, search)
 - Bulk selection and delete
@@ -25,44 +27,52 @@ A modern, feature-rich admin dashboard for managing the Vend-IT vending machine 
 - Suspend/unsuspend users
 
 ### 🤖 **Machine Management**
+
 - Status filtering (Active, Inactive, Maintenance)
 - QR code regeneration
 - Location tracking
 - Export capabilities
 
 ### 📦 **Product Management**
+
 - Category filtering
 - Search by ID, description, brand
 - Export functionality
 
 ### 🛒 **Order Management**
+
 - Status filtering (Pending, Completed, Cancelled, Refunded)
 - Formatted currency and dates
 - Customer search
 - Export orders
 
 ### 🎯 **Campaign Management**
+
 - Create/Edit/Delete campaigns
 - Image upload with preview
 - Date range selection
 - Export campaigns
 
 ### 🏷️ **Category Management**
+
 - Icon upload for categories
 - CRUD operations
 - Export to CSV
 
 ### 💬 **Feedback Management**
+
 - Rating filter (1-5 stars)
 - Star visualization
 - Export feedback
 
 ### 📄 **Content Management**
+
 - Manage About Us
 - Terms & Conditions
 - Privacy Policy
 
 ### 👤 **Profile Management**
+
 - Update admin information
 - Avatar upload with preview
 
@@ -78,33 +88,38 @@ A modern, feature-rich admin dashboard for managing the Vend-IT vending machine 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd Vend-IT-frontend-admin
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Edit `.env` and configure:
+
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:4000/api
    ```
 
 4. **Run development server**
+
    ```bash
    npm run dev
    ```
 
 5. **Open in browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
@@ -165,19 +180,19 @@ src/
 
 ## 🛠️ Tech Stack
 
-| Category | Technologies |
-|----------|-------------|
-| **Framework** | Next.js 16 (Pages Router) |
-| **Language** | TypeScript 5 |
-| **UI Library** | React 19 |
-| **State Management** | Redux Toolkit, RTK Query |
-| **UI Components** | shadcn/ui, Radix UI |
-| **Styling** | Tailwind CSS 4 |
-| **Charts** | Recharts |
-| **Forms** | React Hook Form |
-| **Notifications** | Sonner |
-| **Export** | xlsx, custom CSV utility |
-| **Date Handling** | date-fns, react-day-picker |
+| Category             | Technologies               |
+| -------------------- | -------------------------- |
+| **Framework**        | Next.js 16 (Pages Router)  |
+| **Language**         | TypeScript 5               |
+| **UI Library**       | React 19                   |
+| **State Management** | Redux Toolkit, RTK Query   |
+| **UI Components**    | shadcn/ui, Radix UI        |
+| **Styling**          | Tailwind CSS 4             |
+| **Charts**           | Recharts                   |
+| **Forms**            | React Hook Form            |
+| **Notifications**    | Sonner                     |
+| **Export**           | xlsx, custom CSV utility   |
+| **Date Handling**    | date-fns, react-day-picker |
 
 ---
 
@@ -249,19 +264,21 @@ export const adminApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token || localStorage.getItem('adminToken')
-      if (token) headers.set('Authorization', `Bearer ${token}`)
-      return headers
+      const token = getState().auth.token || localStorage.getItem('adminToken');
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+      return headers;
     },
   }),
   endpoints: (builder) => ({
     getUsers: builder.query({ query: () => '/admin/users' }),
-    deleteUser: builder.mutation({ query: (id) => ({
-      url: `/admin/users/${id}`,
-      method: 'DELETE'
-    })})
-  })
-})
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/admin/users/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+  }),
+});
 ```
 
 ---
@@ -290,26 +307,26 @@ npm run lint
 
 ## 📝 Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable              | Description          | Example                     |
+| --------------------- | -------------------- | --------------------------- |
 | `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:4000/api` |
 
 ---
 
 ## 🎯 Features by Page
 
-| Page | Features |
-|------|----------|
-| **Dashboard** | 4 charts, metrics cards, skeleton loaders |
-| **Users** | Pagination, filters, bulk delete, export |
-| **Machines** | Pagination, status filter, QR regen, export |
-| **Products** | Pagination, category filter, export |
-| **Orders** | Pagination, status filter, formatted data, export |
-| **Campaigns** | CRUD, image upload, date pickers, export |
-| **Categories** | CRUD, icon upload, export |
-| **Feedback** | Pagination, rating filter, star display, export |
-| **Content** | Manage static content (About, Terms, Privacy) |
-| **Profile** | Update admin info, avatar upload |
+| Page           | Features                                          |
+| -------------- | ------------------------------------------------- |
+| **Dashboard**  | 4 charts, metrics cards, skeleton loaders         |
+| **Users**      | Pagination, filters, bulk delete, export          |
+| **Machines**   | Pagination, status filter, QR regen, export       |
+| **Products**   | Pagination, category filter, export               |
+| **Orders**     | Pagination, status filter, formatted data, export |
+| **Campaigns**  | CRUD, image upload, date pickers, export          |
+| **Categories** | CRUD, icon upload, export                         |
+| **Feedback**   | Pagination, rating filter, star display, export   |
+| **Content**    | Manage static content (About, Terms, Privacy)     |
+| **Profile**    | Update admin info, avatar upload                  |
 
 ---
 
@@ -334,24 +351,24 @@ const pagination = usePagination(10) // 10 items per page
 ### Export Data
 
 ```typescript
-import { exportToCSV } from '@/lib/export'
+import { exportToCSV } from '@/lib/export';
 
 exportToCSV(users, 'users.csv', [
   { key: 'name', label: 'Name' },
   { key: 'email', label: 'Email' },
-  { key: 'status', label: 'Status', format: (v) => v === 1 ? 'Active' : 'Suspended' }
-])
+  { key: 'status', label: 'Status', format: (v) => (v === 1 ? 'Active' : 'Suspended') },
+]);
 ```
 
 ### Bulk Selection
 
 ```typescript
-import { useBulkSelection } from '@/hooks/useBulkSelection'
+import { useBulkSelection } from '@/hooks/useBulkSelection';
 
-const selection = useBulkSelection<User>()
+const selection = useBulkSelection<User>();
 
-selection.toggle(userId)
-selection.toggleAll(users, (user) => user.id)
+selection.toggle(userId);
+selection.toggleAll(users, (user) => user.id);
 ```
 
 ---

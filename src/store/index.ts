@@ -5,12 +5,11 @@ import authReducer from './slices/authSlice';
 import { adminApi } from './api/adminApi';
 
 export const store = configureStore({
-    reducer: {
-        auth: authReducer,
-        [adminApi.reducerPath]: adminApi.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(adminApi.middleware),
+  reducer: {
+    auth: authReducer,
+    [adminApi.reducerPath]: adminApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(adminApi.middleware),
 });
 
 // Enable refetchOnFocus/refetchOnReconnect behaviors

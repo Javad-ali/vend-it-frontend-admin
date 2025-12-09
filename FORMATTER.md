@@ -39,10 +39,12 @@ Just save a file (`Cmd+S` / `Ctrl+S`) and it will auto-format.
 ### Manual Formatting
 
 **In VS Code:**
+
 - `Shift+Alt+F` (Windows)
 - `Shift+Option+F` (Mac)
 
 **Via Command Palette:**
+
 1. `Cmd+Shift+P` / `Ctrl+Shift+P`
 2. Type "Format Document"
 3. Press Enter

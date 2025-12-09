@@ -9,25 +9,44 @@ import { formatCurrency } from '@/lib/utils';
 import { useMemo } from 'react';
 
 // Lazy load chart components for better performance
-const RevenueChart = dynamic(() => import('@/components/dashboard/RevenueChart').then(mod => ({ default: mod.RevenueChart })), {
-  loading: () => <CardSkeleton count={1} />,
-  ssr: false // Charts don't need SSR
-});
+const RevenueChart = dynamic(
+  () =>
+    import('@/components/dashboard/RevenueChart').then((mod) => ({ default: mod.RevenueChart })),
+  {
+    loading: () => <CardSkeleton count={1} />,
+    ssr: false, // Charts don't need SSR
+  }
+);
 
-const OrdersChart = dynamic(() => import('@/components/dashboard/OrdersChart').then(mod => ({ default: mod.OrdersChart })), {
-  loading: () => <CardSkeleton count={1} />,
-  ssr: false
-});
+const OrdersChart = dynamic(
+  () => import('@/components/dashboard/OrdersChart').then((mod) => ({ default: mod.OrdersChart })),
+  {
+    loading: () => <CardSkeleton count={1} />,
+    ssr: false,
+  }
+);
 
-const UserGrowthChart = dynamic(() => import('@/components/dashboard/UserGrowthChart').then(mod => ({ default: mod.UserGrowthChart })), {
-  loading: () => <CardSkeleton count={1} />,
-  ssr: false
-});
+const UserGrowthChart = dynamic(
+  () =>
+    import('@/components/dashboard/UserGrowthChart').then((mod) => ({
+      default: mod.UserGrowthChart,
+    })),
+  {
+    loading: () => <CardSkeleton count={1} />,
+    ssr: false,
+  }
+);
 
-const MachineStatusChart = dynamic(() => import('@/components/dashboard/MachineStatusChart').then(mod => ({ default: mod.MachineStatusChart })), {
-  loading: () => <CardSkeleton count={1} />,
-  ssr: false
-});
+const MachineStatusChart = dynamic(
+  () =>
+    import('@/components/dashboard/MachineStatusChart').then((mod) => ({
+      default: mod.MachineStatusChart,
+    })),
+  {
+    loading: () => <CardSkeleton count={1} />,
+    ssr: false,
+  }
+);
 
 export default function Dashboard() {
   const { data, isLoading, error } = useGetDashboardQuery(undefined);
@@ -36,12 +55,15 @@ export default function Dashboard() {
   const metrics = useMemo(() => data?.data?.metrics, [data]);
 
   // Memoize chart data to prevent unnecessary recalculations
-  const charts = useMemo(() => ({
-    revenue: chartData?.data?.charts?.revenue || [],
-    orders: chartData?.data?.charts?.orders || [],
-    userGrowth: chartData?.data?.charts?.userGrowth || [],
-    machineStatus: chartData?.data?.charts?.machineStatus || []
-  }), [chartData]);
+  const charts = useMemo(
+    () => ({
+      revenue: chartData?.data?.charts?.revenue || [],
+      orders: chartData?.data?.charts?.orders || [],
+      userGrowth: chartData?.data?.charts?.userGrowth || [],
+      machineStatus: chartData?.data?.charts?.machineStatus || [],
+    }),
+    [chartData]
+  );
 
   if (isLoading) {
     return (
@@ -62,7 +84,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-lg text-red-500">Failed to load dashboard</div>
         </div>
       </Layout>
@@ -83,42 +105,42 @@ export default function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className="text-muted-foreground h-4 w-4" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics?.totalUsers || 0}</div>
-                <p className="text-xs text-muted-foreground">Registered users</p>
+                <p className="text-muted-foreground text-xs">Registered users</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <ShoppingCart className="text-muted-foreground h-4 w-4" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics?.totalOrders || 0}</div>
-                <p className="text-xs text-muted-foreground">All time orders</p>
+                <p className="text-muted-foreground text-xs">All time orders</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <DollarSign className="text-muted-foreground h-4 w-4" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {formatCurrency(metrics?.totalRevenue || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">Total earnings</p>
+                <p className="text-muted-foreground text-xs">Total earnings</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Machines</CardTitle>
-                <Server className="h-4 w-4 text-muted-foreground" />
+                <Server className="text-muted-foreground h-4 w-4" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics?.activeMachines || 0}</div>

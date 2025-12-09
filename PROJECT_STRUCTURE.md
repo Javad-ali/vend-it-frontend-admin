@@ -75,22 +75,27 @@ NODE_ENV=development
 ## Key Components
 
 ### Layout Components
+
 - **Layout.tsx**: Main wrapper component that includes Sidebar and Header
 - **Sidebar.tsx**: Navigation menu with links to all admin sections
 - **Header.tsx**: Top bar with user info and logout functionality
 
 ### Context
+
 - **AuthContext.tsx**: Manages authentication state, login, logout, and token storage
 
 ### API Client
+
 - **api.ts**: Centralized API client with methods for GET, POST, PUT, DELETE, and PATCH requests
 
 ### Types
+
 - **types/index.ts**: TypeScript interfaces for all entities (User, Machine, Product, Order, Campaign, Category, Feedback, Content)
 
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -98,6 +103,7 @@ NODE_ENV=development
 2. Create your `.env.local` file with the environment variables listed above
 
 3. Run the development server:
+
    ```bash
    npm run dev
    ```
