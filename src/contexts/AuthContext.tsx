@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// src/contexts/AuthContext.tsx
+import React, { createContext, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import api from '@/lib/api';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setCredentials, logout as logoutAction, restoreAuth } from '@/store/slices/authSlice';
+import { useLoginMutation } from '@/store/api/adminApi';
 
 interface Admin {
   id: string;
@@ -17,49 +20,44 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper to safely get admin from localStorage
-const getStoredAdmin = (): Admin | null => {
-  if (typeof window === 'undefined') return null;
-
-  const token = localStorage.getItem('adminToken');
-  const savedAdmin = localStorage.getItem('adminUser');
-
-  if (token && savedAdmin) {
-    try {
-      return JSON.parse(savedAdmin);
-    } catch (error) {
-      console.error('Failed to parse saved admin:', error);
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-    }
-  }
-  return null;
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [admin, setAdmin] = useState<Admin | null>(getStoredAdmin);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const { admin, isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
+  const [loginMutation, { isLoading }] = useLoginMutation();
+
+  // Restore auth from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    const savedAdmin = localStorage.getItem('adminUser');
+
+    if (token && savedAdmin && !isAuthenticated) {
+      try {
+        const adminData = JSON.parse(savedAdmin);
+        dispatch(restoreAuth({ admin: adminData, token }));
+      } catch (error) {
+        console.error('Failed to restore auth:', error);
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+      }
+    }
+  }, [dispatch, isAuthenticated]);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post('/admin/auth/login', { email, password });
-    const { token, admin: adminData } = response.data.data;
+    const result = await loginMutation({ email, password }).unwrap();
+    const { token, admin: adminData } = result.data;
 
-    localStorage.setItem('adminToken', token);
-    localStorage.setItem('adminUser', JSON.stringify(adminData));
-    setAdmin(adminData);
+    dispatch(setCredentials({ admin: adminData, token }));
     router.push('/dashboard');
   };
 
   const logout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    setAdmin(null);
+    dispatch(logoutAction());
     router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ admin, loading, login, logout }}>
+    <AuthContext.Provider value={{ admin, loading: isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

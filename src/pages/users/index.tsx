@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Eye, Ban, Trash2, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useGetUsersQuery, useDeleteUserMutation, useSuspendUserMutation } from '@/store/api/adminApi';
+
 interface User {
     id: string;
     name: string;
@@ -24,58 +25,49 @@ interface User {
     status: number;
     createdAt: string;
 }
+
 export default function Users() {
-    const [users, setUsers] = useState<User[]>([]);
-    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data, isLoading, error } = useGetUsersQuery(undefined);
+    const [deleteUser] = useDeleteUserMutation();
+    const [suspendUser] = useSuspendUserMutation();
+
     const [searchTerm, setSearchTerm] = useState('');
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-    useEffect(() => {
-        if (searchTerm) {
-            const filtered = users.filter(
-                (user) =>
-                    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setFilteredUsers(filtered);
-        } else {
-            setFilteredUsers(users);
-        }
+
+    const users = data?.data?.users || [];
+
+    // Use useMemo instead of useEffect to filter users
+    const filteredUsers = useMemo(() => {
+        if (!searchTerm) return users;
+
+        return users.filter(
+            (user: User) =>
+                user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
     }, [searchTerm, users]);
-    const fetchUsers = async () => {
-        try {
-            const response = await api.get('/admin/users');
-            setUsers(response.data.data.users || []);
-            setFilteredUsers(response.data.data.users || []);
-        } catch (error) {
-            toast.error('Failed to fetch users');
-        } finally {
-            setLoading(false);
-        }
-    };
+
     const handleSuspend = async (userId: string, currentStatus: number) => {
         try {
             const newStatus = currentStatus === 1 ? 0 : 1;
-            await api.post(`/admin/users/${userId}/suspend`, { status: newStatus });
+            await suspendUser({ userId, status: newStatus }).unwrap();
             toast.success(`User ${newStatus === 1 ? 'unsuspended' : 'suspended'} successfully`);
-            fetchUsers();
         } catch (error) {
             toast.error('Failed to update user status');
         }
     };
+
     const handleDelete = async (userId: string) => {
         if (!confirm('Are you sure you want to delete this user?')) return;
+
         try {
-            await api.delete(`/admin/users/${userId}`);
+            await deleteUser(userId).unwrap();
             toast.success('User deleted successfully');
-            fetchUsers();
         } catch (error) {
             toast.error('Failed to delete user');
         }
     };
-    if (loading) {
+
+    if (isLoading) {
         return (
             <Layout>
                 <div className="flex items-center justify-center h-64">
@@ -84,6 +76,17 @@ export default function Users() {
             </Layout>
         );
     }
+
+    if (error) {
+        return (
+            <Layout>
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-lg text-red-500">Failed to load users</div>
+                </div>
+            </Layout>
+        );
+    }
+
     return (
         <ProtectedRoute>
             <Layout>
@@ -92,6 +95,7 @@ export default function Users() {
                         <h1 className="text-3xl font-bold tracking-tight">Users</h1>
                         <p className="text-muted-foreground">Manage registered users</p>
                     </div>
+
                     <div className="flex items-center space-x-2">
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -103,6 +107,7 @@ export default function Users() {
                             />
                         </div>
                     </div>
+
                     <div className="rounded-md border text-black">
                         <Table>
                             <TableHeader>
@@ -123,7 +128,7 @@ export default function Users() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filteredUsers.map((user) => (
+                                    filteredUsers.map((user: User) => (
                                         <TableRow key={user.id}>
                                             <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
                                             <TableCell>{user.email}</TableCell>

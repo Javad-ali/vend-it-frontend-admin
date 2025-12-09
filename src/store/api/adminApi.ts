@@ -1,0 +1,223 @@
+// src/store/api/adminApi.ts
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from '../index';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+export const adminApi = createApi({
+    reducerPath: 'adminApi',
+    baseQuery: fetchBaseQuery({
+        baseUrl: API_URL,
+        prepareHeaders: (headers, { getState }) => {
+            // First try to get token from Redux state
+            let token = (getState() as RootState).auth.token;
+
+            // If not in Redux state (e.g., after page refresh), check localStorage
+            if (!token && typeof window !== 'undefined') {
+                token = localStorage.getItem('adminToken');
+            }
+
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
+    }),
+    tagTypes: ['Dashboard', 'Users', 'Machines', 'Products', 'Orders', 'Campaigns', 'Categories', 'Feedback', 'Content'],
+    endpoints: (builder) => ({
+        // Auth
+        login: builder.mutation({
+            query: (credentials: { email: string; password: string }) => ({
+                url: '/admin/auth/login',
+                method: 'POST',
+                body: credentials,
+            }),
+        }),
+        changePassword: builder.mutation({
+            query: (data: { currentPassword: string; newPassword: string }) => ({
+                url: '/admin/auth/change-password',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
+
+        // Dashboard
+        getDashboard: builder.query({
+            query: () => '/admin/dashboard',
+            providesTags: ['Dashboard'],
+        }),
+
+        // Users
+        getUsers: builder.query({
+            query: () => '/admin/users',
+            providesTags: ['Users'],
+        }),
+        getUserDetails: builder.query({
+            query: (userId: string) => `/admin/users/${userId}`,
+            providesTags: ['Users'],
+        }),
+        deleteUser: builder.mutation({
+            query: (userId: string) => ({
+                url: `/admin/users/${userId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Users'],
+        }),
+        suspendUser: builder.mutation({
+            query: ({ userId, status }: { userId: string; status: number }) => ({
+                url: `/admin/users/${userId}/suspend`,
+                method: 'POST',
+                body: { status },
+            }),
+            invalidatesTags: ['Users'],
+        }),
+
+        // Machines
+        getMachines: builder.query({
+            query: () => '/admin/machines',
+            providesTags: ['Machines'],
+        }),
+        getMachineProducts: builder.query({
+            query: (machineId: string) => `/admin/machines/${machineId}/products`,
+            providesTags: ['Machines'],
+        }),
+        regenerateQR: builder.mutation({
+            query: (machineId: string) => ({
+                url: `/admin/machines/${machineId}/qr`,
+                method: 'POST',
+            }),
+        }),
+
+        // Products
+        getProducts: builder.query({
+            query: () => '/admin/products',
+            providesTags: ['Products'],
+        }),
+        getProductDetails: builder.query({
+            query: (productId: string) => `/admin/products/${productId}`,
+            providesTags: ['Products'],
+        }),
+
+        // Orders
+        getOrders: builder.query({
+            query: () => '/admin/orders',
+            providesTags: ['Orders'],
+        }),
+        getOrderDetails: builder.query({
+            query: (orderId: string) => `/admin/orders/${orderId}`,
+            providesTags: ['Orders'],
+        }),
+
+        // Campaigns
+        getCampaigns: builder.query({
+            query: () => '/admin/campaigns',
+            providesTags: ['Campaigns'],
+        }),
+        createCampaign: builder.mutation({
+            query: (formData: FormData) => ({
+                url: '/admin/campaigns',
+                method: 'POST',
+                body: formData,
+            }),
+            invalidatesTags: ['Campaigns'],
+        }),
+        updateCampaign: builder.mutation({
+            query: ({ id, formData }: { id: string; formData: FormData }) => ({
+                url: `/admin/campaigns/${id}`,
+                method: 'PUT',
+                body: formData,
+            }),
+            invalidatesTags: ['Campaigns'],
+        }),
+        deleteCampaign: builder.mutation({
+            query: (id: string) => ({
+                url: `/admin/campaigns/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Campaigns'],
+        }),
+
+        // Categories
+        getCategories: builder.query({
+            query: () => '/admin/categories',
+            providesTags: ['Categories'],
+        }),
+        createCategory: builder.mutation({
+            query: (formData: FormData) => ({
+                url: '/admin/categories',
+                method: 'POST',
+                body: formData,
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+        updateCategory: builder.mutation({
+            query: ({ id, formData }: { id: string; formData: FormData }) => ({
+                url: `/admin/categories/${id}`,
+                method: 'PUT',
+                body: formData,
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+
+        // Feedback
+        getFeedback: builder.query({
+            query: () => '/admin/feedback',
+            providesTags: ['Feedback'],
+        }),
+
+        // Content
+        getContent: builder.query({
+            query: () => '/admin/content',
+            providesTags: ['Content'],
+        }),
+        updateContent: builder.mutation({
+            query: (data) => ({
+                url: '/admin/content',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Content'],
+        }),
+
+        // Profile
+        getProfile: builder.query({
+            query: () => '/admin/profile',
+        }),
+        updateProfile: builder.mutation({
+            query: (formData: FormData) => ({
+                url: '/admin/profile',
+                method: 'PUT',
+                body: formData,
+            }),
+        }),
+    }),
+});
+
+export const {
+    useLoginMutation,
+    useChangePasswordMutation,
+    useGetDashboardQuery,
+    useGetUsersQuery,
+    useGetUserDetailsQuery,
+    useDeleteUserMutation,
+    useSuspendUserMutation,
+    useGetMachinesQuery,
+    useGetMachineProductsQuery,
+    useRegenerateQRMutation,
+    useGetProductsQuery,
+    useGetProductDetailsQuery,
+    useGetOrdersQuery,
+    useGetOrderDetailsQuery,
+    useGetCampaignsQuery,
+    useCreateCampaignMutation,
+    useUpdateCampaignMutation,
+    useDeleteCampaignMutation,
+    useGetCategoriesQuery,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useGetFeedbackQuery,
+    useGetContentQuery,
+    useUpdateContentMutation,
+    useGetProfileQuery,
+    useUpdateProfileMutation,
+} = adminApi;
