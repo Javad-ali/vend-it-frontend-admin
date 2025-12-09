@@ -2,7 +2,7 @@ import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
-import { useGetDashboardQuery } from '@/store/api/adminApi';
+import { useGetDashboardQuery, useGetChartDataQuery } from '@/store/api/adminApi';
 import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { OrdersChart } from '@/components/dashboard/OrdersChart';
@@ -12,43 +12,14 @@ import { formatCurrency } from '@/lib/utils';
 
 export default function Dashboard() {
   const { data, isLoading, error } = useGetDashboardQuery(undefined);
+  const { data: chartData, isLoading: chartsLoading } = useGetChartDataQuery(undefined);
   const metrics = data?.data?.metrics;
 
-  // Mock data for charts (replace with actual API data when available)
-  const revenueData = [
-    { date: '2024-01-01', revenue: 1200 },
-    { date: '2024-01-02', revenue: 1800 },
-    { date: '2024-01-03', revenue: 1500 },
-    { date: '2024-01-04', revenue: 2200 },
-    { date: '2024-01-05', revenue: 2800 },
-    { date: '2024-01-06', revenue: 2400 },
-    { date: '2024-01-07', revenue: 3200 },
-  ];
-
-  const ordersData = [
-    { date: '2024-01-01', orders: 45 },
-    { date: '2024-01-02', orders: 62 },
-    { date: '2024-01-03', orders: 58 },
-    { date: '2024-01-04', orders: 75 },
-    { date: '2024-01-05', orders: 89 },
-    { date: '2024-01-06', orders: 82 },
-    { date: '2024-01-07', orders: 95 },
-  ];
-
-  const userGrowthData = [
-    { month: 'Jan', users: 120 },
-    { month: 'Feb', users: 185 },
-    { month: 'Mar', users: 240 },
-    { month: 'Apr', users: 320 },
-    { month: 'May', users: 280 },
-    { month: 'Jun', users: 350 },
-  ];
-
-  const machineStatusData = [
-    { name: 'Active', value: metrics?.activeMachines || 12 },
-    { name: 'Inactive', value: 3 },
-    { name: 'Maintenance', value: 2 },
-  ];
+  // Get chart data from API
+  const revenueData = chartData?.data?.charts?.revenue || [];
+  const ordersData = chartData?.data?.charts?.orders || [];
+  const userGrowthData = chartData?.data?.charts?.userGrowth || [];
+  const machineStatusData = chartData?.data?.charts?.machineStatus || [];
 
   if (isLoading) {
     return (

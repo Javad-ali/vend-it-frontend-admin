@@ -46,6 +46,10 @@ export const adminApi = createApi({
             query: () => '/admin/dashboard',
             providesTags: ['Dashboard'],
         }),
+        getChartData: builder.query({
+            query: () => '/admin/dashboard/charts',
+            providesTags: ['Dashboard'],
+        }),
 
         // Users
         getUsers: builder.query<any, {
@@ -235,6 +239,7 @@ export const {
     useLoginMutation,
     useChangePasswordMutation,
     useGetDashboardQuery,
+    useGetChartDataQuery,
     useGetUsersQuery,
     useGetUserDetailsQuery,
     useDeleteUserMutation,
