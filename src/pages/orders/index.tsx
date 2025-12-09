@@ -57,9 +57,9 @@ export default function Orders() {
     exportToCSV(orders, `orders-${new Date().toISOString().split('T')[0]}.csv`, [
       { key: 'order_id', label: 'Order ID' },
       { key: 'user_name', label: 'Customer' },
-      { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${val?.toFixed(2) || '0.00'}` },
+      { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${(val as number)?.toFixed(2) || '0.00'}` },
       { key: 'status', label: 'Status' },
-      { key: 'created_at', label: 'Date', format: (val) => formatDate(val) },
+      { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Orders exported successfully');
   };
@@ -68,9 +68,9 @@ export default function Orders() {
     exportToExcel(orders, `orders-${new Date().toISOString().split('T')[0]}`, 'Orders', [
       { key: 'order_id', label: 'Order ID' },
       { key: 'user_name', label: 'Customer' },
-      { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${val?.toFixed(2) || '0.00'}` },
+      { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${(val as number)?.toFixed(2) || '0.00'}` },
       { key: 'status', label: 'Status' },
-      { key: 'created_at', label: 'Date', format: (val) => formatDate(val) },
+      { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Orders exported successfully');
   };

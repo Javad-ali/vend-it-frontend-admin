@@ -57,10 +57,10 @@ export default function Feedback() {
 
   const handleExportCSV = () => {
     exportToCSV(filteredFeedback, `feedback-${new Date().toISOString().split('T')[0]}.csv`, [
-      { key: 'user_name', label: 'User' },
+      { key: 'id', label: 'ID' },
       { key: 'message', label: 'Message' },
-      { key: 'rating', label: 'Rating' },
-      { key: 'created_at', label: 'Date', format: (val) => formatDate(val) },
+      { key: 'status', label: 'Status' },
+      { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Feedback exported successfully');
   };
@@ -74,7 +74,7 @@ export default function Feedback() {
         { key: 'user_name', label: 'User' },
         { key: 'message', label: 'Message' },
         { key: 'rating', label: 'Rating' },
-        { key: 'created_at', label: 'Date', format: (val) => formatDate(val) },
+        { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
       ]
     );
     toast.success('Feedback exported successfully');

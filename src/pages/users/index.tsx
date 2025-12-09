@@ -150,7 +150,7 @@ export default function Users() {
       { key: 'email', label: 'Email' },
       { key: 'phone', label: 'Phone' },
       { key: 'status', label: 'Status', format: (val) => (val === 1 ? 'Active' : 'Suspended') },
-      { key: 'createdAt', label: 'Joined', format: (val) => formatDate(val) },
+      { key: 'createdAt', label: 'Joined', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Users exported successfully');
   };
@@ -166,7 +166,7 @@ export default function Users() {
       { key: 'email', label: 'Email' },
       { key: 'phone', label: 'Phone' },
       { key: 'status', label: 'Status', format: (val) => (val === 1 ? 'Active' : 'Suspended') },
-      { key: 'createdAt', label: 'Joined', format: (val) => formatDate(val) },
+      { key: 'createdAt', label: 'Joined', format: (val) => formatDate(val as string |Date) },
     ]);
     toast.success('Users exported successfully');
   };

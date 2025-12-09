@@ -1,19 +1,20 @@
 // Lazy load xlsx to reduce bundle size (~1MB)
 const loadXLSX = () => import('xlsx');
 
-export interface ExportColumn {
+export interface ExportColumn<T = unknown> {
   key: string;
   label: string;
-  format?: (value: any) => string;
+  format?: (value: T) => string;
 }
 
 /**
  * Export data to CSV format
+ * Accepts array of objects - uses generics to maintain type safety
  */
-export function exportToCSV<T extends Record<string, any>>(
+export function exportToCSV<T extends object>(
   data: T[],
   filename: string,
-  columns?: ExportColumn[]
+  columns?: ExportColumn<T[keyof T]>[]
 ): void {
   if (data.length === 0) {
     console.warn('No data to export');
@@ -50,12 +51,13 @@ export function exportToCSV<T extends Record<string, any>>(
 
 /**
  * Export data to Excel format (lazy loads xlsx library)
+ * Accepts array of objects - uses generics to maintain type safety
  */
-export async function exportToExcel<T extends Record<string, any>>(
+export async function exportToExcel<T extends object>(
   data: T[],
   filename: string,
   sheetName: string = 'Sheet1',
-  columns?: ExportColumn[]
+  columns?: ExportColumn<T[keyof T]>[]
 ): Promise<void> {
   if (data.length === 0) {
     console.warn('No data to export');
@@ -81,19 +83,19 @@ export async function exportToExcel<T extends Record<string, any>>(
 /**
  * Format data for export based on column configuration
  */
-export function formatDataForExport<T extends Record<string, any>>(
+export function formatDataForExport<T extends object>(
   data: T[],
-  columns?: ExportColumn[]
-): Record<string, any>[] {
+  columns?: ExportColumn<T[keyof T]>[]
+): Record<string, unknown>[] {
   if (!columns) {
-    return data;
+    return data as Record<string, unknown>[];
   }
 
   return data.map((item) => {
-    const formatted: Record<string, any> = {};
+    const formatted: Record<string, unknown> = {};
     columns.forEach((column) => {
-      const value = item[column.key];
-      formatted[column.label] = column.format ? column.format(value) : value;
+      const value = (item as Record<string, unknown>)[column.key];
+      formatted[column.label] = column.format ? column.format(value as T[keyof T]) : value;
     });
     return formatted;
   });
