@@ -206,11 +206,23 @@ export const adminApi = createApi({
       }),
       invalidatesTags: ['Campaigns'],
     }),
+    getCampaignById: builder.query({
+      query: (id: string) => `/admin/campaigns/${id}`,
+      providesTags: ['Campaigns'],
+    }),
 
     // Categories
     getCategories: builder.query({
       query: () => '/admin/categories',
       providesTags: ['Categories'],
+    }),
+    getCategoryById: builder.query({
+      query: (id: string) => `/admin/categories/${id}`,
+      providesTags: ['Categories'],
+    }),
+    getCategoryProducts: builder.query({
+      query: (id: string) => `/admin/categories/${id}/products`,
+      providesTags: ['Categories', 'Products'],
     }),
     createCategory: builder.mutation({
       query: (formData: FormData) => ({
@@ -326,7 +338,10 @@ export const {
   useCreateCampaignMutation,
   useUpdateCampaignMutation,
   useDeleteCampaignMutation,
+  useGetCampaignByIdQuery,
   useGetCategoriesQuery,
+  useGetCategoryByIdQuery,
+  useGetCategoryProductsQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useGetFeedbackQuery,
@@ -339,3 +354,4 @@ export const {
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
 } = adminApi;
+
