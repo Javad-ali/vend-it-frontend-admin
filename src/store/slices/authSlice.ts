@@ -11,12 +11,14 @@ interface AuthState {
   admin: Admin | null;
   token: string | null;
   isAuthenticated: boolean;
+  isInitializing: boolean;
 }
 
 const initialState: AuthState = {
   admin: null,
   token: null,
   isAuthenticated: false,
+  isInitializing: true, // Start as true to prevent premature redirects
 };
 
 const authSlice = createSlice({
@@ -27,6 +29,7 @@ const authSlice = createSlice({
       state.admin = action.payload.admin;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.isInitializing = false;
 
       // Persist to localStorage
       localStorage.setItem('adminToken', action.payload.token);
@@ -36,6 +39,7 @@ const authSlice = createSlice({
       state.admin = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.isInitializing = false;
 
       // Clear localStorage
       localStorage.removeItem('adminToken');
@@ -45,9 +49,14 @@ const authSlice = createSlice({
       state.admin = action.payload.admin;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.isInitializing = false;
+    },
+    finishInitialization: (state) => {
+      state.isInitializing = false;
     },
   },
 });
 
-export const { setCredentials, logout, restoreAuth } = authSlice.actions;
+export const { setCredentials, logout, restoreAuth, finishInitialization } = authSlice.actions;
 export default authSlice.reducer;
+

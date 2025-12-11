@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCredentials, logout as logoutAction, restoreAuth } from '@/store/slices/authSlice';
+import { setCredentials, logout as logoutAction, restoreAuth, finishInitialization } from '@/store/slices/authSlice';
 import { useLoginMutation } from '@/store/api/adminApi';
 
 interface Admin {
@@ -14,6 +14,7 @@ interface Admin {
 interface AuthContextType {
   admin: Admin | null;
   loading: boolean;
+  isInitializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -22,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
-  const { admin, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { admin, isAuthenticated, isInitializing } = useAppSelector((state) => state.auth);
   const router = useRouter();
   const [loginMutation, { isLoading }] = useLoginMutation();
 
@@ -39,7 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to restore auth:', error);
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminUser');
+        dispatch(finishInitialization());
       }
+    } else {
+      dispatch(finishInitialization());
     }
   }, [dispatch, isAuthenticated]);
 
@@ -57,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ admin, loading: isLoading, login, logout }}>
+    <AuthContext.Provider value={{ admin, loading: isLoading, isInitializing, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
