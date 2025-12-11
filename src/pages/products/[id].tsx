@@ -14,9 +14,11 @@ export default function ProductDetails() {
   const router = useRouter();
   const { id } = router.query;
   
-  const { data: product, isLoading } = useGetProductDetailsQuery(id as string, {
+  const { data: productData, isLoading } = useGetProductDetailsQuery(id as string, {
     skip: !id,
   });
+  
+  const product = productData?.data;
 
   if (isLoading) {
     return (

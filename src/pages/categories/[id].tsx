@@ -13,13 +13,16 @@ export default function CategoryDetails() {
   const router = useRouter();
   const { id } = router.query;
   
-  const { data: category, isLoading: categoryLoading } = useGetCategoryByIdQuery(id as string, {
+  const { data: categoryData, isLoading: categoryLoading } = useGetCategoryByIdQuery(id as string, {
     skip: !id,
   });
   
-  const { data: products, isLoading: productsLoading } = useGetCategoryProductsQuery(id as string, {
+  const { data: productsData, isLoading: productsLoading } = useGetCategoryProductsQuery(id as string, {
     skip: !id,
   });
+  
+  const category = categoryData?.data;
+  const products = productsData?.data;
 
   if (categoryLoading) {
     return (

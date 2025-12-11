@@ -14,13 +14,15 @@ export default function UserDetails() {
   const router = useRouter();
   const { id } = router.query;
   
-  const { data: user, isLoading: userLoading } = useGetUserDetailsQuery(id as string, {
+  const { data: userData, isLoading: userLoading } = useGetUserDetailsQuery(id as string, {
     skip: !id,
   });
   
   const { data: orders, isLoading: ordersLoading } = useGetOrdersQuery(undefined, {
     skip: !id,
   });
+  
+  const user = userData?.data;
 
   if (userLoading) {
     return (

@@ -14,9 +14,11 @@ export default function OrderDetails() {
   const router = useRouter();
   const { id } = router.query;
   
-  const { data: order, isLoading } = useGetOrderDetailsQuery(id as string, {
+  const { data: orderData, isLoading } = useGetOrderDetailsQuery(id as string, {
     skip: !id,
   });
+  
+  const order = orderData?.data;
 
   if (isLoading) {
     return (

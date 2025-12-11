@@ -14,9 +14,11 @@ export default function CampaignDetails() {
   const router = useRouter();
   const { id } = router.query;
   
-  const { data: campaign, isLoading } = useGetCampaignByIdQuery(id as string, {
+  const { data, isLoading } = useGetCampaignByIdQuery(id as string, {
     skip: !id,
   });
+  
+  const campaign = data?.data;
 
   if (isLoading) {
     return (
