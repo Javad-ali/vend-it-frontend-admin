@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useGetMachinesQuery, useGetMachineProductsQuery } from '@/store/api/adminApi';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
 
 export default function MachineDetails() {
   const router = useRouter();
@@ -75,21 +74,37 @@ export default function MachineDetails() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Products ({products?.length || 0})</CardTitle>
+                {products && products.length > 5 && (
+                  <Link href={`/machines/${id}/products`}>
+                    <Button variant="outline" size="sm">
+                      View All
+                    </Button>
+                  </Link>
+                )}
               </CardHeader>
               <CardContent>
                 {productsLoading ? (
                   <p>Loading products...</p>
                 ) : products && products.length > 0 ? (
-                  <ul className="space-y-2">
-                    {products.slice(0, 5).map((product: { id: string; name: string; stock: number }) => (
-                      <li key={product.id} className="flex justify-between border-b pb-2">
-                        <span>{product.name}</span>
-                        <span className="text-sm text-gray-500">Stock: {product.stock}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    <ul className="space-y-2">
+                      {products.slice(0, 5).map((product: { id: string; name: string; stock: number }) => (
+                        <li key={product.id} className="flex justify-between border-b pb-2">
+                          <span>{product.name}</span>
+                          <span className="text-sm text-gray-500">Stock: {product.stock}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {products.length <= 5 && products.length > 0 && (
+                      <Link href={`/machines/${id}/products`}>
+                        <Button variant="link" className="mt-2 w-full">
+                          View All Products
+                        </Button>
+                      </Link>
+                    )}
+                  </>
                 ) : (
                   <p className="text-gray-500">No products assigned</p>
                 )}
