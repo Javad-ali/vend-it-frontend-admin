@@ -67,7 +67,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://www.google-analytics.com https:",
+              "connect-src 'self' http://localhost:* https://*", // Allow localhost and all HTTPS for API
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
