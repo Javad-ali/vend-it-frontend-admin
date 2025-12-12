@@ -8,6 +8,10 @@ import { Toaster } from 'sonner';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Inter } from 'next/font/google';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { trackWebVitals, sendToAnalytics, trackPageView } from '@/lib/analytics';
+import { monitoring } from '@/lib/monitoring';
 
 // Optimize font loading
 const inter = Inter({
@@ -17,6 +21,28 @@ const inter = Inter({
 });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Initialize monitoring once
+    monitoring.init();
+
+    // Track Web Vitals
+    trackWebVitals(sendToAnalytics);
+  }, []);
+
+  useEffect(() => {
+    // Track page views on route change
+    const handleRouteChange = (url: string) => {
+      trackPageView(url);
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   return (
     <ErrorBoundary>
       <Provider store={store}>

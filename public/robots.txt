@@ -1,0 +1,22 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin pages from indexing
+Disallow: /login
+Disallow: /dashboard
+Disallow: /users
+Disallow: /machines
+Disallow: /products
+Disallow: /orders
+Disallow: /campaigns
+Disallow: /categories
+Disallow: /profile
+Disallow: /change-password
+Disallow: /activity-logs
+Disallow: /notifications
+Disallow: /content
+Disallow: /feedback
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
