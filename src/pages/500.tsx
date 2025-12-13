@@ -16,14 +16,15 @@ export default function ErrorPage() {
           </div>
           <CardTitle className="text-2xl font-bold">500 - Server Error</CardTitle>
           <CardDescription className="text-base">
-            Oops! Something went wrong on our end. We're working to fix it.
+            Oops! Something went wrong on our end. We&apos;re working to fix it.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-sm text-gray-600">
-            Our team has been notified and is looking into the issue. Please try again in a few moments.
+            Our team has been notified and is looking into the issue. Please try again in a few
+            moments.
           </p>
-          
+
           <div className="flex flex-col gap-2">
             <Button onClick={() => router.back()} variant="outline" className="w-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
