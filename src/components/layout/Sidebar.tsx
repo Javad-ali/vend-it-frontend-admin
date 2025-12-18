@@ -16,6 +16,8 @@ const Sidebar: React.FC = () => {
     { href: '/feedback', label: 'Feedback', icon: '💬' },
     { href: '/content', label: 'Content', icon: '📝' },
     { href: '/activity-logs', label: 'Activity Logs', icon: '🕒' },
+    { href: '/sessions', label: 'Sessions', icon: '🔐' },
+    { href: '/cache', label: 'Cache', icon: '💾' },
   ];
 
   return (
