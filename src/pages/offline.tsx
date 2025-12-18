@@ -11,6 +11,7 @@ export default function Offline() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);
@@ -47,7 +48,7 @@ export default function Offline() {
               />
             </svg>
           </div>
-          <CardTitle className="text-2xl font-bold">You're Offline</CardTitle>
+          <CardTitle className="text-2xl font-bold">You&apos;re Offline</CardTitle>
           <CardDescription>
             {isOnline
               ? 'Connection restored! You can retry now.'
@@ -56,11 +57,11 @@ export default function Offline() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
-            <p className="mb-2">While you're offline:</p>
+            <p className="mb-2">While you&lsquo;re offline:</p>
             <ul className="list-inside list-disc space-y-1">
               <li>Previously visited pages may still be accessible</li>
-              <li>New data won't load until you're back online</li>
-              <li>Changes won't be saved until connection is restored</li>
+              <li>New data won&apos;t load until you&apos;re back online</li>
+              <li>Changes won&apos;t be saved until connection is restored</li>
             </ul>
           </div>
 
