@@ -15,18 +15,25 @@ export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      // First try to get token from Redux state
-      let token = (getState() as RootState).auth.token;
-
-      // If not in Redux state (e.g., after page refresh), check localStorage
-      if (!token && typeof window !== 'undefined') {
-        token = localStorage.getItem('adminToken');
+    credentials: 'include', // Enable cookies
+    prepareHeaders: (headers, { getState, endpoint }) => {
+      // Add CSRF token from state for mutation requests
+      const csrfToken = (getState() as RootState).auth.csrfToken;
+      
+      // For mutations, add CSRF token from cookie if not in state
+      if (endpoint && !['query', 'Query'].some(s => endpoint.includes(s))) {
+        const cookieCsrfToken = csrfToken || 
+          (typeof document !== 'undefined' ? 
+            document.cookie
+              .split('; ')
+              .find(row => row.startsWith('csrf_token='))
+              ?.split('=')[1] : undefined);
+        
+        if (cookieCsrfToken) {
+          headers.set('x-csrf-token', cookieCsrfToken);
+        }
       }
-
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
+      
       return headers;
     },
   }),

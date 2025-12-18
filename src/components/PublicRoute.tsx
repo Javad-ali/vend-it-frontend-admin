@@ -3,18 +3,18 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 export default function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { admin, isInitializing } = useAuth();
+  const { admin, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     // Redirect authenticated users to dashboard
-    if (!isInitializing && admin) {
+    if (!isLoading && admin) {
       router.push('/dashboard');
     }
-  }, [admin, isInitializing, router]);
+  }, [admin, isLoading, router]);
 
-  // Show loading while initializing
-  if (isInitializing) {
+  // Show loading while checking authentication
+  if (isLoading) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
 
