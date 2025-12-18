@@ -1,76 +1,91 @@
 // src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCredentials, logout as logoutAction, restoreAuth, finishInitialization } from '@/store/slices/authSlice';
-import { useLoginMutation } from '@/store/api/adminApi';
+import { useAppDispatch } from '@/store/hooks';
+import { setCredentials as setAuthCredentials, logout as logoutAction, finishInitialization, restoreAuth } from '@/store/slices/authSlice';
+import api from '@/lib/api';
 
 interface Admin {
   id: string;
   email: string;
   name: string | null;
+  role?: string;
 }
 
 interface AuthContextType {
   admin: Admin | null;
-  loading: boolean;
-  isInitializing: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const dispatch = useAppDispatch();
-  const { admin, isAuthenticated, isInitializing } = useAppSelector((state) => state.auth);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const [loginMutation, { isLoading }] = useLoginMutation();
+  const dispatch = useAppDispatch();
 
-  // Restore auth from localStorage on mount
+  // Check session on mount
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const savedAdmin = localStorage.getItem('adminUser');
-
-    if (token && savedAdmin && !isAuthenticated) {
-      try {
-        const adminData = JSON.parse(savedAdmin);
-        dispatch(restoreAuth({ admin: adminData, token }));
-      } catch (error) {
-        console.error('Failed to restore auth:', error);
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
+    const checkSession = async () => {
+      // Skip session check if on login page
+      if (router.pathname === '/login') {
+        setIsLoading(false);
         dispatch(finishInitialization());
+        return;
       }
-    } else {
-      dispatch(finishInitialization());
-    }
-  }, [dispatch, isAuthenticated]);
+
+      try {
+        const response = await api.get('/admin/me');
+        if (response.data?.data?.admin) {
+          const adminData = response.data.data.admin;
+          setAdmin(adminData);
+          dispatch(restoreAuth({ admin: adminData }));
+        }
+      } catch (error) {
+        // Not authenticated - will be redirected by API interceptor if needed
+        dispatch(finishInitialization());
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [dispatch, router.pathname]);
 
   const login = async (email: string, password: string) => {
-    const result = await loginMutation({ email, password }).unwrap();
-    const { token, admin: adminData } = result.data;
-
-    dispatch(setCredentials({ admin: adminData, token }));
+    const response = await api.post('/admin/login', { email, password });
+    const { admin: adminData, csrfToken } = response.data.data;
+    
+    setAdmin(adminData);
+    dispatch(setAuthCredentials({ admin: adminData, csrfToken }));
     router.push('/dashboard');
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post('/admin/logout');
+    } catch (error) {
+      // Ignore errors on logout
+    }
+    setAdmin(null);
     dispatch(logoutAction());
     router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ admin, loading: isLoading, isInitializing, login, logout }}>
+    <AuthContext.Provider value={{ admin, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
-}
+};

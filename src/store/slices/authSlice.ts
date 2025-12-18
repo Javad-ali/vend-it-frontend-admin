@@ -5,18 +5,19 @@ interface Admin {
   id: string;
   email: string;
   name: string | null;
+  role?: string;
 }
 
 interface AuthState {
   admin: Admin | null;
-  token: string | null;
+  csrfToken: string | null;
   isAuthenticated: boolean;
   isInitializing: boolean;
 }
 
 const initialState: AuthState = {
   admin: null,
-  token: null,
+  csrfToken: null,
   isAuthenticated: false,
   isInitializing: true, // Start as true to prevent premature redirects
 };
@@ -25,29 +26,22 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ admin: Admin; token: string }>) => {
+    setCredentials: (state, action: PayloadAction<{ admin: Admin; csrfToken?: string }>) => {
       state.admin = action.payload.admin;
-      state.token = action.payload.token;
+      state.csrfToken = action.payload.csrfToken || null;
       state.isAuthenticated = true;
       state.isInitializing = false;
-
-      // Persist to localStorage
-      localStorage.setItem('adminToken', action.payload.token);
-      localStorage.setItem('adminUser', JSON.stringify(action.payload.admin));
+      // No localStorage - auth is managed via httpOnly cookies
     },
     logout: (state) => {
       state.admin = null;
-      state.token = null;
+      state.csrfToken = null;
       state.isAuthenticated = false;
       state.isInitializing = false;
-
-      // Clear localStorage
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
+      // No localStorage to clear - cookies cleared by backend
     },
-    restoreAuth: (state, action: PayloadAction<{ admin: Admin; token: string }>) => {
+    restoreAuth: (state, action: PayloadAction<{ admin: Admin }>) => {
       state.admin = action.payload.admin;
-      state.token = action.payload.token;
       state.isAuthenticated = true;
       state.isInitializing = false;
     },
@@ -59,4 +53,3 @@ const authSlice = createSlice({
 
 export const { setCredentials, logout, restoreAuth, finishInitialization } = authSlice.actions;
 export default authSlice.reducer;
-
