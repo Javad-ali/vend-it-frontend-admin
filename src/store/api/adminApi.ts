@@ -49,6 +49,7 @@ export const adminApi = createApi({
     'Content',
     'ActivityLogs',
     'Notifications',
+    'Sessions',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -322,6 +323,19 @@ export const adminApi = createApi({
       }),
       invalidatesTags: ['Notifications'],
     }),
+
+    // Sessions Management
+    getSession: builder.query({
+      query: () => '/admin/sessions',
+      providesTags: ['Sessions'],
+    }),
+    revokeAllSessions: builder.mutation({
+      query: () => ({
+        url: '/admin/sessions/revoke-all',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Sessions'],
+    }),
   }),
 });
 
@@ -360,5 +374,7 @@ export const {
   useGetNotificationsQuery,
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
+  useGetSessionQuery,
+  useRevokeAllSessionsMutation,
 } = adminApi;
 
