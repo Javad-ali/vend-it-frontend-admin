@@ -39,7 +39,7 @@ const OrdersChartComponent = ({ data }: OrdersChartProps) => {
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
-              formatter={(value: number) => [`${value} orders`, 'Orders']}
+              formatter={(value: number | undefined) => [`${value || 0} orders`, 'Orders']}
             />
             <Area
               type="monotone"

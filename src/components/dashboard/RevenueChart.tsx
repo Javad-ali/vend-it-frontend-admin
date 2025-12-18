@@ -40,7 +40,7 @@ const RevenueChartComponent = ({ data }: RevenueChartProps) => {
             />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(value) => `${value}`} />
             <Tooltip
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value: number | undefined) => formatCurrency(value || 0)}
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
             />
             <Legend />

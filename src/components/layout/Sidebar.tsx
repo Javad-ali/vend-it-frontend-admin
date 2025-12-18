@@ -7,6 +7,7 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { href: '/analytics', label: 'Analytics', icon: '📈' },
     { href: '/users', label: 'Users', icon: '👥' },
     { href: '/machines', label: 'Machines', icon: '🖥️' },
     { href: '/products', label: 'Products', icon: '📦' },

@@ -51,6 +51,7 @@ export const adminApi = createApi({
     'Notifications',
     'Sessions',
     'Cache',
+    'Analytics',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -325,6 +326,28 @@ export const adminApi = createApi({
       invalidatesTags: ['Notifications'],
     }),
 
+    // Analytics
+    getSalesTrends: builder.query({
+      query: (period: string = '30d') => `/admin/analytics/sales-trends?period=${period}`,
+      providesTags: ['Analytics'],
+    }),
+    getUserGrowth: builder.query({
+      query: (period: string = '30d') => `/admin/analytics/user-growth?period=${period}`,
+      providesTags: ['Analytics'],
+    }),
+    getProductPerformance: builder.query({
+      query: (limit: number = 10) => `/admin/analytics/product-performance?limit=${limit}`,
+      providesTags: ['Analytics'],
+    }),
+    getMachineUtilization: builder.query({
+      query: () => '/admin/analytics/machine-utilization',
+      providesTags: ['Analytics'],
+    }),
+    getOrderStatus: builder.query({
+      query: () => '/admin/analytics/order-status',
+      providesTags: ['Analytics'],
+    }),
+
     // Sessions Management
     getSession: builder.query({
       query: () => '/admin/sessions',
@@ -355,25 +378,27 @@ export const adminApi = createApi({
 
 export const {
   useLoginMutation,
+  useLogoutMutation,
+  useGetMeQuery,
   useChangePasswordMutation,
+  useRefreshTokenMutation,
   useGetDashboardQuery,
-  useGetChartDataQuery,
   useGetUsersQuery,
-  useGetUserDetailsQuery,
+  useGetUserByIdQuery,
   useDeleteUserMutation,
   useSuspendUserMutation,
   useGetMachinesQuery,
+  useGetMachineByIdQuery,
   useGetMachineProductsQuery,
-  useRegenerateQRMutation,
   useGetProductsQuery,
-  useGetProductDetailsQuery,
+  useGetProductByIdQuery,
   useGetOrdersQuery,
-  useGetOrderDetailsQuery,
+  useGetOrderByIdQuery,
   useGetCampaignsQuery,
+  useGetCampaignByIdQuery,
   useCreateCampaignMutation,
   useUpdateCampaignMutation,
   useDeleteCampaignMutation,
-  useGetCampaignByIdQuery,
   useGetCategoriesQuery,
   useGetCategoryByIdQuery,
   useGetCategoryProductsQuery,
@@ -382,15 +407,18 @@ export const {
   useGetFeedbackQuery,
   useGetContentQuery,
   useUpdateContentMutation,
-  useGetProfileQuery,
-  useUpdateProfileMutation,
   useGetActivityLogsQuery,
   useGetNotificationsQuery,
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
+  useGetSalesTrendsQuery,
+  useGetUserGrowthQuery,
+  useGetProductPerformanceQuery,
+  useGetMachineUtilizationQuery,
+  useGetOrderStatusQuery,
   useGetSessionQuery,
   useRevokeAllSessionsMutation,
-  useGetCacheStatsQuery,
-  useClearCacheMutation,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useGetChartDataQuery,
 } = adminApi;
-
