@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGetCacheStatsQuery, useClearCacheMutation } from '@/store/api/adminApi';
@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export default function CachePage() {
-  const { data, isLoading, error, refetch } = useGetCacheStatsQuery(undefined);
+  const { data, isLoading, isError, refetch } = useGetCacheStatsQuery(undefined);
   const [clearCache, { isLoading: isClearing }] = useClearCacheMutation();
 
   const cacheStats = data?.data || {};
@@ -48,7 +48,7 @@ export default function CachePage() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Card className="border-destructive">
         <CardHeader>

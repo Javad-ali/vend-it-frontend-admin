@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Offline() {
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(() => typeof window !== 'undefined' && navigator.onLine);
   const router = useRouter();
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-
-     
-    setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
