@@ -28,7 +28,7 @@ export default function SessionsPage() {
 
   const handleRevokeAll = async () => {
     try {
-      await revokeAll().unwrap();
+      await revokeAll(undefined).unwrap();
       toast.success('All sessions revoked successfully');
       // User will be logged out, redirect to login
       setTimeout(() => {
