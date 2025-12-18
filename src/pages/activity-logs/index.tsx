@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { ActivityFilters, type ActivityFilters as ActivityFiltersType } from '@/components/ActivityFilters';
 import { toast } from 'sonner';
 import { Search, Download, Filter, Clock, User, Edit, Trash2, LogIn, LogOut } from 'lucide-react';
 import { useGetActivityLogsQuery } from '@/store/api/adminApi';
@@ -26,6 +27,7 @@ export default function ActivityLogs() {
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
+  const [filters, setFilters] = useState<ActivityFiltersType>({});
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -39,6 +41,9 @@ export default function ActivityLogs() {
     limit,
     action: actionFilter !== 'all' ? actionFilter : undefined,
     search: debouncedSearch || undefined,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    entityType: filters.entityType,
   });
 
   const logs = data?.data?.logs || [];
@@ -145,6 +150,18 @@ export default function ActivityLogs() {
             </h1>
             <p className="text-muted-foreground">Track all admin actions and system events</p>
           </div>
+
+          {/* Advanced Filters */}
+          <ActivityFilters
+            onFilterChange={(newFilters) => {
+              setFilters(newFilters);
+              setPage(1);
+            }}
+            onReset={() => {
+              setFilters({});
+              setPage(1);
+            }}
+          />
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-1 items-center gap-2">

@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { ShortcutsDialog } from '@/components/ShortcutsDialog';
 import { NotificationsDropdown } from '@/components/notifications-dropdown';
+import { Button } from '@/components/ui/button';
+import { Keyboard } from 'lucide-react';
 
 const Header: React.FC = () => {
   const { admin, logout } = useAuth();
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
     <header className="border-b bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -17,6 +21,14 @@ const Header: React.FC = () => {
         </div>
         <div className="flex items-center space-x-4">
           <NotificationsDropdown />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowShortcuts(true)}
+            title="Keyboard shortcuts (?)"
+          >
+            <Keyboard className="h-5 w-5" />
+          </Button>
           <ThemeToggle />
           <Link
             href="/profile"
@@ -38,6 +50,7 @@ const Header: React.FC = () => {
           </button>
         </div>
       </div>
+      <ShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
     </header>
   );
 };

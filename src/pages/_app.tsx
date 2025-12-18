@@ -3,12 +3,14 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { store } from '../store';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { Toaster } from 'sonner';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { ShortcutsDialog } from '@/components/ShortcutsDialog';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Inter } from 'next/font/google';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { trackWebVitals, sendToAnalytics, trackPageView } from '@/lib/analytics';
 import { monitoring } from '@/lib/monitoring';
@@ -20,8 +22,17 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const { logout } = useAuth();
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts({
+    onShowHelp: () => setShowShortcuts(true),
+    onLogout: logout,
+    enabled: router.pathname !== '/login', // Disable on login page
+  });
 
   useEffect(() => {
     // Initialize monitoring once
@@ -44,14 +55,21 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, [router.events]);
 
   return (
+    <div className={inter.variable}>
+      <Component {...pageProps} />
+      <Toaster position="top-right" />
+      <ShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
+    </div>
+  );
+}
+
+export default function MyApp(props: AppProps) {
+  return (
     <ErrorBoundary>
       <Provider store={store}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <div className={inter.variable}>
-              <Component {...pageProps} />
-              <Toaster position="top-right" />
-            </div>
+            <AppContent {...props} />
           </AuthProvider>
         </ThemeProvider>
       </Provider>
