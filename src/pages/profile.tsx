@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGetProfileQuery, useUpdateProfileMutation } from '@/store/api/adminApi';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
+import Image from 'next/image';
 
 export default function Profile() {
   const { admin } = useAuth();
@@ -118,6 +119,20 @@ export default function Profile() {
 
                 <div className="space-y-2">
                   <Label htmlFor="avatar">Profile Picture</Label>
+
+                  {/* Current Avatar Preview */}
+                  {data?.data?.avatar_url && (
+                    <div className="mb-4">
+                      <Image
+                        src={data.data.avatar_url}
+                        alt="Current Avatar"
+                        width={48}
+                        height={48}
+                        className="border-border rounded-full border-2 object-cover"
+                      />
+                      <p className="text-muted-foreground mt-2 text-xs">Current avatar</p>
+                    </div>
+                  )}
                   <ImageUpload
                     value={formData.avatar || undefined}
                     onChange={(file) => setFormData({ ...formData, avatar: file })}
