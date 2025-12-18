@@ -28,39 +28,43 @@ export default function Analytics() {
   const { data: salesData, isLoading: salesLoading } = useGetSalesTrendsQuery(period);
   const { data: userGrowthData, isLoading: userGrowthLoading } = useGetUserGrowthQuery(period);
   const { data: productData, isLoading: productLoading } = useGetProductPerformanceQuery(10);
-  const { data: machineData, isLoading: machineLoading } = useGetMachineUtilizationQuery();
-  const { data: orderData, isLoading: orderLoading } = useGetOrderStatusQuery();
+  const { data: machineData, isLoading: machineLoading } = useGetMachineUtilizationQuery(undefined);
+  const { data: orderData, isLoading: orderLoading } = useGetOrderStatusQuery(undefined);
 
   // Calculate totals for metric cards
   const totalRevenue = salesData?.data?.revenue?.reduce((a: number, b: number) => a + b, 0) || 0;
   const totalOrders = salesData?.data?.orders?.reduce((a: number, b: number) => a + b, 0) || 0;
-  const totalUsers = userGrowthData?.data?.totalUsers?.[userGrowthData.data.totalUsers.length - 1] || 0;
+  const totalUsers =
+    userGrowthData?.data?.totalUsers?.[userGrowthData.data.totalUsers.length - 1] || 0;
   const activeMachines = machineData?.data?.active || 0;
 
   // Prepare chart data
-  const salesChartData = salesData?.data?.dates?.map((date: string, index: number) => ({
-    date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    revenue: salesData.data.revenue[index],
-    orders: salesData.data.orders[index],
-  })) || [];
+  const salesChartData =
+    salesData?.data?.dates?.map((date: string, index: number) => ({
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      revenue: salesData.data.revenue[index],
+      orders: salesData.data.orders[index],
+    })) || [];
 
-  const userGrowthChartData = userGrowthData?.data?.dates?.map((date: string, index: number) => ({
-    date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    newUsers: userGrowthData.data.newUsers[index],
-    totalUsers: userGrowthData.data.totalUsers[index],
-  })) || [];
+  const userGrowthChartData =
+    userGrowthData?.data?.dates?.map((date: string, index: number) => ({
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      newUsers: userGrowthData.data.newUsers[index],
+      totalUsers: userGrowthData.data.totalUsers[index],
+    })) || [];
 
-  const productChartData = productData?.data?.map((product: any) => ({
-    name: product.name?.substring(0, 20) || 'Unknown',
-    sales: product.sales,
-    revenue: product.revenue,
-  })) || [];
+  const productChartData =
+    productData?.data?.map((product: any) => ({
+      name: product.name?.substring(0, 20) || 'Unknown',
+      sales: product.sales,
+      revenue: product.revenue,
+    })) || [];
 
   const machinePieData = [
     { name: 'Active', value: machineData?.data?.active || 0 },
     { name: 'Inactive', value: machineData?.data?.inactive || 0 },
     { name: 'Maintenance', value: machineData?.data?.maintenance || 0 },
-  ].filter(item => item.value > 0);
+  ].filter((item) => item.value > 0);
 
   const orderPieData = Object.entries(orderData?.data || {}).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
@@ -99,25 +103,25 @@ export default function Analytics() {
             <MetricCard
               title="Total Revenue"
               value={`$${totalRevenue.toLocaleString()}`}
-              icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+              icon={<DollarSign className="text-muted-foreground h-4 w-4" />}
               loading={salesLoading}
             />
             <MetricCard
               title="Total Orders"
               value={totalOrders.toLocaleString()}
-              icon={<Package className="h-4 w-4 text-muted-foreground" />}
+              icon={<Package className="text-muted-foreground h-4 w-4" />}
               loading={salesLoading}
             />
             <MetricCard
               title="Total Users"
               value={totalUsers.toLocaleString()}
-              icon={<Users className="h-4 w-4 text-muted-foreground" />}
+              icon={<Users className="text-muted-foreground h-4 w-4" />}
               loading={userGrowthLoading}
             />
             <MetricCard
               title="Active Machines"
               value={activeMachines.toLocaleString()}
-              icon={<Server className="h-4 w-4 text-muted-foreground" />}
+              icon={<Server className="text-muted-foreground h-4 w-4" />}
               loading={machineLoading}
             />
           </div>
@@ -127,7 +131,7 @@ export default function Analytics() {
             {/* Sales Trends */}
             {salesLoading ? (
               <Card>
-                <CardContent className="h-[300px] flex items-center justify-center">
+                <CardContent className="flex h-[300px] items-center justify-center">
                   <div className="text-muted-foreground">Loading...</div>
                 </CardContent>
               </Card>
@@ -146,7 +150,7 @@ export default function Analytics() {
             {/* User Growth */}
             {userGrowthLoading ? (
               <Card>
-                <CardContent className="h-[300px] flex items-center justify-center">
+                <CardContent className="flex h-[300px] items-center justify-center">
                   <div className="text-muted-foreground">Loading...</div>
                 </CardContent>
               </Card>
@@ -165,7 +169,7 @@ export default function Analytics() {
             {/* Product Performance */}
             {productLoading ? (
               <Card>
-                <CardContent className="h-[300px] flex items-center justify-center">
+                <CardContent className="flex h-[300px] items-center justify-center">
                   <div className="text-muted-foreground">Loading...</div>
                 </CardContent>
               </Card>
@@ -184,7 +188,7 @@ export default function Analytics() {
             {/* Machine Utilization */}
             {machineLoading ? (
               <Card>
-                <CardContent className="h-[300px] flex items-center justify-center">
+                <CardContent className="flex h-[300px] items-center justify-center">
                   <div className="text-muted-foreground">Loading...</div>
                 </CardContent>
               </Card>

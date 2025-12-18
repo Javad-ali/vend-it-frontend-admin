@@ -23,7 +23,7 @@ const UserGrowthChartComponent = ({ data }: UserGrowthChartProps) => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => [`${value} users`, 'New Users']} />
+            <Tooltip formatter={(value: number | undefined) => [`${value || 0} users`, 'New Users']} />
             <Bar
               dataKey="users"
               fill="hsl(var(--primary))"

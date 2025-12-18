@@ -421,4 +421,6 @@ export const {
   useGetProfileQuery,
   useUpdateProfileMutation,
   useGetChartDataQuery,
+  useGetCacheStatsQuery,
+  useClearCacheMutation,
 } = adminApi;
