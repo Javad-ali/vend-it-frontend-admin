@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Check session on mount
+  // Check session on mount only (not on route changes to prevent auto-logout)
   useEffect(() => {
     const checkSession = async () => {
       // Skip session check if on login page
@@ -53,13 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     checkSession();
-  }, [dispatch, router.pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const login = async (email: string, password: string) => {
     const response = await api.post('/admin/auth/login', { email, password });
     const { admin: adminData, csrfToken } = response.data.data;
     
     setAdmin(adminData);
+    setIsLoading(false); // Mark as not loading after successful login
     dispatch(setAuthCredentials({ admin: adminData, csrfToken }));
     router.push('/dashboard');
   };
