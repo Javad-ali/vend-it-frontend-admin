@@ -19,7 +19,7 @@ import {
 
 export default function SessionsPage() {
   const router = useRouter();
-  const { data, isLoading, error } = useGetSessionQuery();
+  const { data, isLoading, error } = useGetSessionQuery(undefined);
   const [revokeAll, { isLoading: isRevoking }] = useRevokeAllSessionsMutation();
 
   const sessions = data?.data?.sessions || [];
