@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const response = await api.get('/admin/me');
+        const response = await api.get('/admin/auth/me');
         if (response.data?.data?.admin) {
           const adminData = response.data.data.admin;
           setAdmin(adminData);
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [dispatch, router.pathname]);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post('/admin/login', { email, password });
+    const response = await api.post('/admin/auth/login', { email, password });
     const { admin: adminData, csrfToken } = response.data.data;
     
     setAdmin(adminData);
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await api.post('/admin/logout');
+      await api.post('/admin/auth/logout');
     } catch (error) {
       // Ignore errors on logout
     }
