@@ -12,7 +12,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   const { onShowHelp, onLogout, enabled = true } = options;
   const router = useRouter();
   const sequenceRef = useRef<string>('');
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
