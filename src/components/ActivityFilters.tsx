@@ -69,14 +69,14 @@ export function ActivityFilters({ onFilterChange, onReset }: ActivityFiltersProp
           <div className="space-y-2">
             <Label htmlFor="action">Action Type</Label>
             <Select
-              value={filters.action || ''}
-              onValueChange={(value) => handleFilterChange('action', value)}
+              value={filters.action || 'all'}
+              onValueChange={(value) => handleFilterChange('action', value === 'all' ? '' : value)}
             >
               <SelectTrigger id="action">
                 <SelectValue placeholder="All actions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actions</SelectItem>
+                <SelectItem value="all">All actions</SelectItem>
                 <SelectItem value="LOGIN">Login</SelectItem>
                 <SelectItem value="LOGOUT">Logout</SelectItem>
                 <SelectItem value="CREATE">Create</SelectItem>
@@ -90,14 +90,14 @@ export function ActivityFilters({ onFilterChange, onReset }: ActivityFiltersProp
           <div className="space-y-2">
             <Label htmlFor="entityType">Entity Type</Label>
             <Select
-              value={filters.entityType || ''}
-              onValueChange={(value) => handleFilterChange('entityType', value)}
+              value={filters.entityType || 'all'}
+              onValueChange={(value) => handleFilterChange('entityType', value === 'all' ? '' : value)}
             >
               <SelectTrigger id="entityType">
                 <SelectValue placeholder="All entities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All entities</SelectItem>
+                <SelectItem value="all">All entities</SelectItem>
                 <SelectItem value="USER">User</SelectItem>
                 <SelectItem value="PRODUCT">Product</SelectItem>
                 <SelectItem value="MACHINE">Machine</SelectItem>
