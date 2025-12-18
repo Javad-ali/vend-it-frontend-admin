@@ -11,7 +11,7 @@ export default function Offline() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);
