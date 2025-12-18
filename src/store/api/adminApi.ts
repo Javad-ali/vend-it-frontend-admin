@@ -50,6 +50,7 @@ export const adminApi = createApi({
     'ActivityLogs',
     'Notifications',
     'Sessions',
+    'Cache',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -336,6 +337,19 @@ export const adminApi = createApi({
       }),
       invalidatesTags: ['Sessions'],
     }),
+
+    // Cache Management
+    getCacheStats: builder.query({
+      query: () => '/admin/cache/stats',
+      providesTags: ['Cache'],
+    }),
+    clearCache: builder.mutation({
+      query: () => ({
+        url: '/admin/cache/clear',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Cache'],
+    }),
   }),
 });
 
@@ -376,5 +390,7 @@ export const {
   useMarkAllNotificationsAsReadMutation,
   useGetSessionQuery,
   useRevokeAllSessionsMutation,
+  useGetCacheStatsQuery,
+  useClearCacheMutation,
 } = adminApi;
 
