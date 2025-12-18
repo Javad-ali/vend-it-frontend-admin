@@ -16,9 +16,10 @@ import { Pagination } from '@/components/ui/pagination';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { ActivityFilters, type ActivityFilters as ActivityFiltersType } from '@/components/ActivityFilters';
 import { toast } from 'sonner';
-import { Search, Download, Filter, Clock, User, Edit, Trash2, LogIn, LogOut } from 'lucide-react';
+import { Search, Download, Filter, Clock, User, Edit, Trash2, LogIn, LogOut, FileText } from 'lucide-react';
 import { useGetActivityLogsQuery } from '@/store/api/adminApi';
 import { exportToCSV, exportToExcel } from '@/lib/export';
+import { fetchAndDownloadPdf } from '@/lib/pdf-export';
 import { formatDate } from '@/lib/utils';
 import type { ActivityLog } from '@/types/api';
 
@@ -28,6 +29,7 @@ export default function ActivityLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [filters, setFilters] = useState<ActivityFiltersType>({});
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -78,6 +80,28 @@ export default function ActivityLogs() {
       ]
     );
     toast.success('Activity logs exported successfully');
+  };
+
+  const handleExportPDF = async () => {
+    setIsExportingPdf(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+    
+    const result = await fetchAndDownloadPdf(
+      `${API_URL}/admin/export/activity-pdf`,
+      `activity-logs-${new Date().toISOString().split('T')[0]}.pdf`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filters),
+      }
+    );
+    
+    setIsExportingPdf(false);
+    if (result.success) {
+      toast.success('PDF exported successfully');
+    } else {
+      toast.error('Failed to export PDF: ' + result.error);
+    }
   };
 
   const getActionIcon = (action: string) => {
@@ -204,9 +228,23 @@ export default function ActivityLogs() {
                 <Download className="mr-2 h-4 w-4" />
                 CSV
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExportExcel}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportExcel}
+                disabled={logs.length === 0}
+              >
                 <Download className="mr-2 h-4 w-4" />
-                Excel
+                Export Excel
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                disabled={logs.length === 0 || isExportingPdf}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                {isExportingPdf ? 'Exporting...' : 'Export PDF'}
               </Button>
             </div>
           </div>
