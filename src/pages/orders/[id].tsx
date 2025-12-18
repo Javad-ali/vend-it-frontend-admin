@@ -1,16 +1,20 @@
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useGetOrderDetailsQuery } from '@/store/api/adminApi';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { fetchAndDownloadPdf } from '@/lib/pdf-export';
+import { toast } from 'sonner';
 
 export default function OrderDetails() {
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   
@@ -34,14 +38,39 @@ export default function OrderDetails() {
     <ProtectedRoute>
       <Layout>
         <div className="container mx-auto p-6">
-          <div className="mb-6 flex items-center gap-4">
-            <Link href="/orders">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Orders
-              </Button>
-            </Link>
-            <h1 className="text-3xl font-bold">Order Details</h1>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/orders">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Orders
+                </Button>
+              </Link>
+              <h1 className="text-3xl font-bold">Order Details</h1>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                setIsExportingPdf(true);
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+                const result = await fetchAndDownloadPdf(
+                  `${API_URL}/admin/export/order-pdf/${id}`,
+                  `order-${id}.pdf`,
+                  { method: 'GET' }
+                );
+                setIsExportingPdf(false);
+                if (result.success) {
+                  toast.success('Order exported successfully');
+                } else {
+                  toast.error('Failed to export order');
+                }
+              }}
+              disabled={isExportingPdf || !id}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              {isExportingPdf ? 'Exporting...' : 'Export PDF'}
+            </Button>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">

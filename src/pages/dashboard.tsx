@@ -1,11 +1,15 @@
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { Button } from '@/components/ui/button';
 import { useGetDashboardQuery, useGetChartDataQuery } from '@/store/api/adminApi';
-import { Users, ShoppingCart, DollarSign, Server } from 'lucide-react';
+import { Users, ShoppingCart, DollarSign, Server, FileText } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { fetchAndDownloadPdf } from '@/lib/pdf-export';
+import { toast } from 'sonner';
 import { useMemo } from 'react';
 
 // Lazy load chart components for better performance
@@ -49,6 +53,7 @@ const MachineStatusChart = dynamic(
 );
 
 export default function Dashboard() {
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const { data, isLoading, error } = useGetDashboardQuery(undefined);
   const { data: chartData, isLoading: chartsLoading } = useGetChartDataQuery(undefined);
 
@@ -95,9 +100,34 @@ export default function Dashboard() {
     <ProtectedRoute>
       <Layout>
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome to Vend-IT Admin Panel</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+              <p className="text-muted-foreground">Welcome to Vend-IT Admin Panel</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                setIsExportingPdf(true);
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+                const result = await fetchAndDownloadPdf(
+                  `${API_URL}/admin/export/dashboard-pdf`,
+                  `dashboard-${new Date().toISOString().split('T')[0]}.pdf`,
+                  { method: 'POST' }
+                );
+                setIsExportingPdf(false);
+                if (result.success) {
+                  toast.success('Dashboard exported successfully');
+                } else {
+                  toast.error('Failed to export dashboard');
+                }
+              }}
+              disabled={isExportingPdf}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              {isExportingPdf ? 'Exporting...' : 'Export PDF'}
+            </Button>
           </div>
 
           {/* Metrics Cards */}
