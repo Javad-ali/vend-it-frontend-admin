@@ -31,10 +31,14 @@ export interface Product {
 
 export interface Order {
   order_id: string;
+  order_reference?: string; // User-friendly reference like ORD-00001234
   user_name?: string;
-  total_amount?: number;
-  status?: string;
+  machine_tag?: string;
+  total_amount: number;
+  status: string;
+  payment_method?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Feedback {

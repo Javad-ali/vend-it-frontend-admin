@@ -9,7 +9,7 @@ import { ArrowLeft, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useGetOrderDetailsQuery } from '@/store/api/adminApi';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, getStatusVariant, getStatusLabel } from '@/lib/utils';
 import { fetchAndDownloadPdf } from '@/lib/pdf-export';
 import { toast } from 'sonner';
 
@@ -78,10 +78,16 @@ export default function OrderDetails() {
               <CardHeader>
                 <CardTitle>Order Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="grid gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Order Reference</p>
+                  <p className="font-mono font-medium">
+                    {order?.order_reference || `#${id?.toString().slice(0, 8)}` || 'N/A'}
+                  </p>
+                </div>
                 <div>
                   <p className="text-sm text-gray-500">Order ID</p>
-                  <p className="font-mono font-medium">{order?.order_id || id}</p>
+                  <p className="font-mono text-xs text-gray-600">{id || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Customer</p>
@@ -93,8 +99,8 @@ export default function OrderDetails() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Status</p>
-                  <Badge variant={order?.status === 'completed' ? 'default' : order?.status === 'pending' ? 'secondary' : 'destructive'}>
-                    {order?.status || 'Unknown'}
+                  <Badge variant={getStatusVariant(order?.status || '')}>
+                    {getStatusLabel(order?.status || 'Unknown')}
                   </Badge>
                 </div>
               </CardContent>

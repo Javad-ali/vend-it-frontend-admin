@@ -61,19 +61,38 @@ export function capitalize(str: string): string {
 export function getStatusVariant(
   status: string
 ): 'default' | 'destructive' | 'outline' | 'secondary' {
-  const statusLower = status.toLowerCase();
+  const statusUpper = status?.toUpperCase() || '';
 
-  if (['active', 'completed', 'paid', 'success'].includes(statusLower)) {
+  // Success states (green)
+  if (['ACTIVE', 'CAPTURED', 'PAID', 'SUCCESS', 'COMPLETED'].includes(statusUpper)) {
     return 'default';
   }
 
-  if (['inactive', 'cancelled', 'failed', 'suspended', 'expired'].includes(statusLower)) {
+  // Error states (red)
+  if (['INACTIVE', 'CANCELLED', 'FAILED', 'SUSPENDED', 'EXPIRED'].includes(statusUpper)) {
     return 'destructive';
   }
 
-  if (['pending', 'processing'].includes(statusLower)) {
+  // Pending states (yellow)
+  if (['PENDING', 'PROCESSING'].includes(statusUpper)) {
     return 'secondary';
   }
 
   return 'outline';
+}
+
+/**
+ * Get user-friendly status label
+ */
+export function getStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    'CAPTURED': 'Completed',
+    'CREDIT': 'Credit',
+    'DEBIT': 'Debit',
+    'pending': 'Pending',
+    'failed': 'Failed',
+    'refunded': 'Refunded',
+    'cancelled': 'Cancelled'
+  };
+  return labels[status] || capitalize(status);
 }

@@ -39,13 +39,14 @@ export interface Product {
 // Order Types
 export interface Order {
   id: string;
+  order_reference?: string; // User-friendly reference like ORD-00001234
   userId: string;
   user?: User;
   machineId: string;
   machine?: Machine;
   items: OrderItem[];
   total: number;
-  status: 'pending' | 'completed' | 'cancelled' | 'refunded';
+  status: 'CAPTURED' | 'CREDIT' | 'DEBIT' | 'pending' | 'failed' | 'refunded'; // Actual database values
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   createdAt: string;

@@ -27,7 +27,8 @@ import Link from 'next/link';
 import { useGetOrdersQuery } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
-import { formatCurrency, formatDate, getStatusVariant } from '@/lib/utils';
+import { formatCurrency, formatDate, getStatusVariant, getStatusLabel } from '@/lib/utils';
+import { fetchAndDownloadPdf } from '@/lib/pdf-export';
 import type { Order } from '@/types/api';
 
 export default function Orders() {
@@ -35,6 +36,7 @@ export default function Orders() {
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [isExportingSales, setIsExportingSales] = useState(false);
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -55,6 +57,7 @@ export default function Orders() {
 
   const handleExportCSV = () => {
     exportToCSV(orders, `orders-${new Date().toISOString().split('T')[0]}.csv`, [
+      { key: 'order_reference', label: 'Order Reference' },
       { key: 'order_id', label: 'Order ID' },
       { key: 'user_name', label: 'Customer' },
       { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${(val as number)?.toFixed(2) || '0.00'}` },
@@ -66,6 +69,7 @@ export default function Orders() {
 
   const handleExportExcel = () => {
     exportToExcel(orders, `orders-${new Date().toISOString().split('T')[0]}`, 'Orders', [
+      { key: 'order_reference', label: 'Order Reference' },
       { key: 'order_id', label: 'Order ID' },
       { key: 'user_name', label: 'Customer' },
       { key: 'total_amount', label: 'Amount', format: (val) => `KWD ${(val as number)?.toFixed(2) || '0.00'}` },
@@ -73,6 +77,27 @@ export default function Orders() {
       { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Orders exported successfully');
+  };
+
+  const handleExportSales = async () => {
+    setIsExportingSales(true);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      const result = await fetchAndDownloadPdf(
+        `${API_URL}/admin/export/sales/pdf`,
+        `sales-report-${new Date().toISOString().split('T')[0]}.pdf`,
+        { method: 'GET' }
+      );
+      if (result.success) {
+        toast.success('Sales report exported successfully');
+      } else {
+        toast.error('Failed to export sales report');
+      }
+    } catch (error) {
+      toast.error('Failed to export sales report');
+    } finally {
+      setIsExportingSales(false);
+    }
   };
 
   if (isLoading) {
@@ -113,7 +138,7 @@ export default function Orders() {
               <div className="relative max-w-sm flex-1">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                 <Input
-                  placeholder="Search orders..."
+                  placeholder="Search by order ID or reference..."
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -136,8 +161,10 @@ export default function Orders() {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="CAPTURED">Completed</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="CREDIT">Credit</SelectItem>
+                  <SelectItem value="DEBIT">Debit</SelectItem>
                   <SelectItem value="refunded">Refunded</SelectItem>
                 </SelectContent>
               </Select>
@@ -152,6 +179,15 @@ export default function Orders() {
                 <Download className="mr-2 h-4 w-4" />
                 Excel
               </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleExportSales}
+                disabled={isExportingSales}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                {isExportingSales ? 'Exporting...' : 'Sales Report'}
+              </Button>
             </div>
           </div>
 
@@ -159,6 +195,7 @@ export default function Orders() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Order Reference</TableHead>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Amount</TableHead>
@@ -170,19 +207,24 @@ export default function Orders() {
               <TableBody>
                 {orders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-muted-foreground text-center">
+                    <TableCell colSpan={7} className="text-muted-foreground text-center">
                       No orders found
                     </TableCell>
                   </TableRow>
                 ) : (
                   orders.map((order: Order) => (
                     <TableRow key={order.order_id}>
-                      <TableCell className="font-mono text-sm">{order.order_id}</TableCell>
+                      <TableCell className="font-mono text-sm font-medium">
+                        {order.order_reference || `#${order.order_id.slice(0, 8)}`}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-gray-500">
+                        {order.order_id.slice(0, 8)}...
+                      </TableCell>
                       <TableCell>{order.user_name || 'N/A'}</TableCell>
                       <TableCell>{formatCurrency(order.total_amount || 0)}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(order.status || '')}>
-                          {order.status || 'Unknown'}
+                          {getStatusLabel(order.status || 'Unknown')}
                         </Badge>
                       </TableCell>
                       <TableCell>{formatDate(order.created_at)}</TableCell>
