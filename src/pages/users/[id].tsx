@@ -88,10 +88,12 @@ export default function UserDetails() {
                   <p>Loading orders...</p>
                 ) : orders?.data?.orders && orders.data.orders.length > 0 ? (
                   <ul className="space-y-2">
-                    {orders.data.orders.slice(0, 5).map((order) => (
+                  {orders.data.orders.slice(0, 5).map((order) => (
                       <li key={order.order_id} className="flex justify-between border-b pb-2">
                         <div>
-                          <p className="font-medium">{order.order_id}</p>
+                          <p className="font-mono text-sm font-medium text-blue-600">
+                            {order.order_reference}
+                          </p>
                           <p className="text-xs text-gray-500">{formatDate(order.created_at)}</p>
                         </div>
                         <span className="font-medium">{formatCurrency(order.total_amount || 0)}</span>

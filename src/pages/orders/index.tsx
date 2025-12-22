@@ -195,9 +195,9 @@ export default function Orders() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order Reference</TableHead>
-                  <TableHead>Order ID</TableHead>
+                  <TableHead>Order #</TableHead>
                   <TableHead>Customer</TableHead>
+                  <TableHead>Machine</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
@@ -214,14 +214,16 @@ export default function Orders() {
                 ) : (
                   orders.map((order: Order) => (
                     <TableRow key={order.order_id}>
-                      <TableCell className="font-mono text-sm font-medium">
-                        {order.order_reference || `#${order.order_id.slice(0, 8)}`}
+                      <TableCell className="font-mono text-sm font-medium text-blue-600">
+                        {order.order_reference}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-gray-500">
-                        {order.order_id.slice(0, 8)}...
+                      <TableCell>{order.user_name || 'Guest'}</TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {order.machine_tag || 'N/A'}
                       </TableCell>
-                      <TableCell>{order.user_name || 'N/A'}</TableCell>
-                      <TableCell>{formatCurrency(order.total_amount || 0)}</TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(order.total_amount || 0)}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(order.status || '')}>
                           {getStatusLabel(order.status || 'Unknown')}

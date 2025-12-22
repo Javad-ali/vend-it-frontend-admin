@@ -29,17 +29,38 @@ export interface Product {
   category?: string;
 }
 
+export interface OrderItem {
+  product_id: string;
+  product_name: string;
+  product_image?: string;
+  quantity: number;
+  dispensed_quantity: number;
+  price: number;
+}
+
 export interface Order {
   order_id: string;
-  order_reference?: string; // User-friendly reference like ORD-00001234
+  order_reference: string; // User-friendly reference like ORD-00001234
   user_name?: string;
+  user_email?: string;
+  user_phone?: string;
+  user_avatar?: string;
   machine_tag?: string;
+  machine_location?: string;
+  machine_image?: string;
   total_amount: number;
   status: string;
   payment_method?: string;
+  currency?: string;
+  transaction_id?: string;
+  charge_id?: string;
+  earned_points?: number;
+  redeemed_points?: number;
+  redeemed_amount?: number;
   created_at: string;
-  updated_at?: string;
+  items?: OrderItem[];
 }
+
 
 export interface Feedback {
   id: string;
