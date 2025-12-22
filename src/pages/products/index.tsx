@@ -27,6 +27,7 @@ import { useGetProductsQuery } from '@/store/api/adminApi';
 import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import type { Product } from '@/types/api';
+import { formatProductId } from '@/lib/id-format';
 
 export default function Products() {
   const [page, setPage] = useState(1);
@@ -133,7 +134,7 @@ export default function Products() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product ID</TableHead>
+                  <TableHead>Product</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Brand</TableHead>
                   <TableHead>Category</TableHead>
@@ -150,8 +151,12 @@ export default function Products() {
                 ) : (
                   products.map((product: Product) => (
                     <TableRow key={product.product_u_id}>
-                      <TableCell className="font-mono text-sm">{product.product_u_id}</TableCell>
-                      <TableCell>{product.description || 'N/A'}</TableCell>
+                      <TableCell>
+                        <span className="font-mono text-xs text-gray-500">
+                          {formatProductId(product.product_u_id)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium">{product.description || 'N/A'}</TableCell>
                       <TableCell>{product.brand_name || 'N/A'}</TableCell>
                       <TableCell>{product.category || 'N/A'}</TableCell>
                       <TableCell className="text-right">

@@ -30,6 +30,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import type { Machine } from '@/types/api';
 import { formatDate, getStatusVariant } from '@/lib/utils';
+import { formatMachineId } from '@/lib/id-format';
 
 export default function Machines() {
   const [page, setPage] = useState(1);
@@ -188,8 +189,7 @@ export default function Machines() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Machine ID</TableHead>
-                  <TableHead>Machine Name</TableHead>
+                  <TableHead>Machine</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -205,9 +205,15 @@ export default function Machines() {
                 ) : (
                   machines.map((machine: Machine) => (
                     <TableRow key={machine.machine_u_id}>
-                      <TableCell className="font-medium">{machine.machine_u_id}</TableCell>
-                      <TableCell>{machine.machine_name || 'N/A'}</TableCell>
-                      <TableCell>{machine.location || 'N/A'}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{machine.machine_name || formatMachineId(machine.machine_u_id)}</p>
+                          <p className="font-mono text-xs text-gray-400">
+                            {formatMachineId(machine.machine_u_id, machine.machine_name)}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">{machine.location || 'N/A'}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(machine.status || '')}>
                           {machine.status || 'Unknown'}

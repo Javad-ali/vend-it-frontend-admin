@@ -26,6 +26,7 @@ import { useGetFeedbackQuery } from '@/store/api/adminApi';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { formatDate } from '@/lib/utils';
 import type { Feedback } from '@/types/api';
+import { formatFeedbackId } from '@/lib/id-format';
 
 export default function Feedback() {
   const [page, setPage] = useState(1);
@@ -56,10 +57,14 @@ export default function Feedback() {
       : feedback;
 
   const handleExportCSV = () => {
-    exportToCSV(filteredFeedback, `feedback-${new Date().toISOString().split('T')[0]}.csv`, [
-      { key: 'id', label: 'ID' },
+    const exportData = filteredFeedback.map((item: Feedback) => ({
+      ...item,
+      formatted_id: formatFeedbackId(item.id),
+    }));
+    exportToCSV(exportData, `feedback-${new Date().toISOString().split('T')[0]}.csv`, [
+      { key: 'formatted_id', label: 'Ref ID' },
+      { key: 'user_name', label: 'User' },
       { key: 'message', label: 'Message' },
-      { key: 'status', label: 'Status' },
       { key: 'created_at', label: 'Date', format: (val) => formatDate(val as string | Date) },
     ]);
     toast.success('Feedback exported successfully');
