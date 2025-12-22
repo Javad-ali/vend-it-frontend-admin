@@ -18,8 +18,8 @@ export default function UserDetails() {
     skip: !id,
   });
   
-  // We'll show all orders since we don't have a user filter endpoint
-  const { data: orders, isLoading: ordersLoading } = useGetOrdersQuery({ limit: 100 }, {
+  // Fetch orders for this specific user
+  const { data: orders, isLoading: ordersLoading } = useGetOrdersQuery({ limit: 10, userId: id as string }, {
     skip: !id,
   });
   

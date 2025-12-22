@@ -26,6 +26,7 @@ export interface Product {
   product_u_id: string;
   description?: string;
   brand_name?: string;
+  image?: string;
   category?: string;
 }
 

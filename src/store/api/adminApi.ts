@@ -174,6 +174,7 @@ export const adminApi = createApi({
           limit?: number;
           status?: string;
           search?: string;
+          userId?: string;
         }
       | undefined
     >({
