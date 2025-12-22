@@ -134,20 +134,28 @@ export default function MachineDetails() {
                   {products.slice(0, 6).map((item: any) => (
                     <div 
                       key={item.slot} 
-                      className="flex items-center gap-3 rounded-lg border p-3"
+                      className={`flex items-center gap-3 rounded-lg border p-3 ${item.quantity === 0 ? 'border-red-200 bg-red-50' : item.quantity <= 2 ? 'border-yellow-200 bg-yellow-50' : ''}`}
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded bg-gray-100">
-                        <Box className="h-5 w-5 text-gray-400" />
-                      </div>
+                      {item.product?.image ? (
+                        <img 
+                          src={item.product.image} 
+                          alt={item.product.brand}
+                          className="h-12 w-12 rounded object-contain"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded bg-gray-100">
+                          <Box className="h-5 w-5 text-gray-400" />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
-                          {item.product?.description || 'Unknown Product'}
+                        <p className="font-medium text-sm truncate">
+                          {item.product?.brand || 'Unknown Product'}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-gray-500">
                           <span>Slot {item.slot}</span>
                           <span>•</span>
-                          <span className={item.quantity <= 5 ? 'text-red-500' : ''}>
-                            Stock: {item.quantity}/{item.maxQuantity}
+                          <span className={item.quantity === 0 ? 'text-red-500 font-medium' : item.quantity <= 2 ? 'text-yellow-600' : ''}>
+                            {item.quantity}/{item.maxQuantity}
                           </span>
                         </div>
                       </div>
