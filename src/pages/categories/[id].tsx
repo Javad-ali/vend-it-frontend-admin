@@ -55,15 +55,15 @@ export default function CategoryDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Category Name</p>
+                  <p className="text-sm text-muted-foreground">Category Name</p>
                   <p className="text-xl font-bold">{category?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Description</p>
+                  <p className="text-sm text-muted-foreground">Description</p>
                   <p className="font-medium">{category?.description || 'No description available'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm text-muted-foreground">Status</p>
                   <Badge variant={category?.status === 1 ? 'default' : 'destructive'}>
                     {category?.status === 1 ? 'Active' : 'Inactive'}
                   </Badge>
@@ -88,7 +88,7 @@ export default function CategoryDetails() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500">No products in this category</p>
+                  <p className="text-muted-foreground">No products in this category</p>
                 )}
               </CardContent>
             </Card>

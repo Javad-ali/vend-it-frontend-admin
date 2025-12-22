@@ -50,21 +50,21 @@ export default function CampaignDetails() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-gray-500">Description</p>
+                <p className="text-sm text-muted-foreground">Description</p>
                 <p className="font-medium">{campaign?.description || 'No description available'}</p>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <p className="text-sm text-gray-500">Start Date</p>
+                  <p className="text-sm text-muted-foreground">Start Date</p>
                   <p className="font-medium">{campaign?.start_at ? formatDate(campaign.start_at) : 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">End Date</p>
+                  <p className="text-sm text-muted-foreground">End Date</p>
                   <p className="font-medium">{campaign?.end_at ? formatDate(campaign.end_at) : 'N/A'}</p>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status</p>
+                <p className="text-sm text-muted-foreground">Status</p>
                 <Badge variant={campaign?.status === 1 ? 'default' : 'destructive'}>
                   {campaign?.status === 1 ? 'Active' : 'Inactive'}
                 </Badge>

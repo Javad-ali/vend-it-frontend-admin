@@ -267,7 +267,7 @@ export default function Users() {
           )}
 
           {/* Table */}
-          <div className="rounded-md border text-black">
+          <div className="rounded-md border text-foreground">
             <Table>
               <TableHeader>
                 <TableRow>

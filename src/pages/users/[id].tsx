@@ -57,7 +57,7 @@ export default function UserDetails() {
       <ProtectedRoute>
         <Layout>
           <div className="p-6 text-center">
-            <p className="text-gray-500">User not found</p>
+            <p className="text-muted-foreground">User not found</p>
             <Link href="/users">
               <Button variant="outline" className="mt-4">
                 Back to Users
@@ -82,7 +82,7 @@ export default function UserDetails() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold">{user.name || 'Unknown User'}</h1>
-              <p className="text-sm text-gray-500">{formatUserId(user.id)}</p>
+              <p className="text-sm text-muted-foreground">{formatUserId(user.id)}</p>
             </div>
           </div>
 
@@ -95,33 +95,33 @@ export default function UserDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="text-sm text-muted-foreground">Name</p>
                   <p className="text-lg font-medium">{user.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-sm text-muted-foreground">Email</p>
                   <p className="font-medium">{user.email || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-sm text-muted-foreground">Phone</p>
                   <p className="font-medium">{user.phone || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Country</p>
+                  <p className="text-sm text-muted-foreground">Country</p>
                   <p className="font-medium">{user.country || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm text-muted-foreground">Status</p>
                   <Badge variant={user.status === 1 ? 'default' : 'destructive'} className="mt-1">
                     {user.status === 1 ? 'Active' : 'Suspended'}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Joined</p>
+                  <p className="text-sm text-muted-foreground">Joined</p>
                   <p className="font-medium">{user.createdAt ? formatDate(user.createdAt) : 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">OTP Verified</p>
+                  <p className="text-sm text-muted-foreground">OTP Verified</p>
                   <Badge variant={user.isOtpVerified ? 'default' : 'secondary'} className="mt-1">
                     {user.isOtpVerified ? 'Verified' : 'Not Verified'}
                   </Badge>
@@ -137,13 +137,13 @@ export default function UserDetails() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <p className="text-sm text-gray-500">Wallet Balance</p>
+                  <p className="text-sm text-muted-foreground">Wallet Balance</p>
                   <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(user.wallet || 0)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Loyalty Points</p>
+                  <p className="text-sm text-muted-foreground">Loyalty Points</p>
                   <div className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-yellow-500" />
                     <p className="text-2xl font-bold text-yellow-600">
@@ -180,7 +180,7 @@ export default function UserDetails() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500">No purchase history</p>
+                  <p className="text-muted-foreground">No purchase history</p>
                 )}
               </CardContent>
             </Card>
@@ -212,7 +212,7 @@ export default function UserDetails() {
                         <p className="font-mono text-sm font-medium text-blue-600">
                           {order.order_reference}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {order.user_name} • {formatDate(order.created_at)}
                         </p>
                       </div>
@@ -226,7 +226,7 @@ export default function UserDetails() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">No orders found</p>
+                <p className="text-muted-foreground">No orders found</p>
               )}
             </CardContent>
           </Card>

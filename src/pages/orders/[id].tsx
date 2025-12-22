@@ -38,7 +38,7 @@ export default function OrderDetails() {
       <ProtectedRoute>
         <Layout>
           <div className="p-6 text-center">
-            <p className="text-gray-500">Order not found</p>
+            <p className="text-muted-foreground">Order not found</p>
             <Link href="/orders">
               <Button variant="outline" className="mt-4">
                 Back to Orders
@@ -64,7 +64,7 @@ export default function OrderDetails() {
               </Link>
               <div>
                 <h1 className="text-3xl font-bold">{order.order_reference}</h1>
-                <p className="text-sm text-gray-500">Order Details</p>
+                <p className="text-sm text-muted-foreground">Order Details</p>
               </div>
             </div>
             <Button
@@ -101,24 +101,24 @@ export default function OrderDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Order Reference</p>
+                  <p className="text-sm text-muted-foreground">Order Reference</p>
                   <p className="font-mono text-lg font-bold text-blue-600">
                     {order.order_reference}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Order Date</p>
+                  <p className="text-sm text-muted-foreground">Order Date</p>
                   <p className="font-medium">{formatDate(order.created_at)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm text-muted-foreground">Status</p>
                   <Badge variant={getStatusVariant(order.status || '')} className="mt-1">
                     {getStatusLabel(order.status || 'Unknown')}
                   </Badge>
                 </div>
                 {order.transaction_id && (
                   <div>
-                    <p className="text-sm text-gray-500">Transaction ID</p>
+                    <p className="text-sm text-muted-foreground">Transaction ID</p>
                     <p className="font-mono text-xs">{order.transaction_id}</p>
                   </div>
                 )}
@@ -133,18 +133,18 @@ export default function OrderDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="text-sm text-muted-foreground">Name</p>
                   <p className="font-medium">{order.user_name || 'Guest'}</p>
                 </div>
                 {order.user_email && (
                   <div>
-                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{order.user_email}</p>
                   </div>
                 )}
                 {order.user_phone && (
                   <div>
-                    <p className="text-sm text-gray-500">Phone</p>
+                    <p className="text-sm text-muted-foreground">Phone</p>
                     <p className="font-medium">{order.user_phone}</p>
                   </div>
                 )}
@@ -159,11 +159,11 @@ export default function OrderDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Machine Tag</p>
+                  <p className="text-sm text-muted-foreground">Machine Tag</p>
                   <p className="font-medium">{order.machine_tag || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Location</p>
+                  <p className="text-sm text-muted-foreground">Location</p>
                   <p className="font-medium">{order.machine_location || 'N/A'}</p>
                 </div>
               </CardContent>
@@ -178,24 +178,24 @@ export default function OrderDetails() {
               <CardContent>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <p className="text-sm text-gray-500">Total Amount</p>
+                    <p className="text-sm text-muted-foreground">Total Amount</p>
                     <p className="text-2xl font-bold text-green-600">
                       {formatCurrency(order.total_amount || 0, order.currency)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Payment Method</p>
+                    <p className="text-sm text-muted-foreground">Payment Method</p>
                     <p className="font-medium capitalize">{order.payment_method || 'N/A'}</p>
                   </div>
                   {order.earned_points > 0 && (
                     <div>
-                      <p className="text-sm text-gray-500">Points Earned</p>
+                      <p className="text-sm text-muted-foreground">Points Earned</p>
                       <p className="font-medium text-blue-600">+{order.earned_points} pts</p>
                     </div>
                   )}
                   {order.redeemed_points > 0 && (
                     <div>
-                      <p className="text-sm text-gray-500">Points Redeemed</p>
+                      <p className="text-sm text-muted-foreground">Points Redeemed</p>
                       <p className="font-medium text-orange-600">-{order.redeemed_points} pts</p>
                     </div>
                   )}
@@ -228,7 +228,7 @@ export default function OrderDetails() {
                         )}
                         <div>
                           <p className="font-medium">{item.product_name}</p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted-foreground">
                             Qty: {item.quantity}
                             {item.dispensed_quantity !== item.quantity && (
                               <span className="ml-2 text-orange-600">

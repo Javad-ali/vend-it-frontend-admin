@@ -130,7 +130,7 @@ export default function Products() {
             </div>
           </div>
 
-          <div className="rounded-md border text-black">
+          <div className="rounded-md border text-foreground">
             <Table>
               <TableHeader>
                 <TableRow>
