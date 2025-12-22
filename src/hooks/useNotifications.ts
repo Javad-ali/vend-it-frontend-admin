@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import type { Notification } from '@/types/api';
 
 let lastChecked = new Date();
-let knownNotifications = new Set<string>();
+const knownNotifications = new Set<string>();
 
 export function useNotifications(pollingInterval: number = 30000) {
   const { data, isLoading, refetch } = useGetNotificationsQuery(

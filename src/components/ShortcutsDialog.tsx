@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +21,8 @@ export function ShortcutsDialog({ open, onOpenChange }: ShortcutsDialogProps) {
     system: 'System',
   };
 
-  const groupedShortcuts = Object.entries(SHORTCUTS).reduce(
-    (acc, [_, shortcut]) => {
+  const groupedShortcuts = Object.values(SHORTCUTS).reduce(
+    (acc, shortcut) => {
       if (!acc[shortcut.category]) {
         acc[shortcut.category] = [];
       }
