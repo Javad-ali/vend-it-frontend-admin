@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useGetCacheStatsQuery, useClearCacheMutation } from '@/store/api/adminApi';
 import { Loader2, Trash2, Database, RefreshCw, AlertTriangle } from 'lucide-react';
+import Layout from '@/components/layout/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -41,27 +43,37 @@ export default function CachePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="text-primary h-8 w-8 animate-spin" />
-      </div>
+      <ProtectedRoute>
+        <Layout>
+          <div className="flex min-h-[400px] items-center justify-center">
+            <Loader2 className="text-primary h-8 w-8 animate-spin" />
+          </div>
+        </Layout>
+      </ProtectedRoute>
     );
   }
 
   if (isError) {
     return (
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive">Error Loading Cache Stats</CardTitle>
-          <CardDescription>
-            Failed to load cache statistics. Please try again later.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <ProtectedRoute>
+        <Layout>
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle className="text-destructive">Error Loading Cache Stats</CardTitle>
+              <CardDescription>
+                Failed to load cache statistics. Please try again later.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Layout>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <ProtectedRoute>
+      <Layout>
+        <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Cache Management</h1>
@@ -212,5 +224,7 @@ export default function CachePage() {
         </CardContent>
       </Card>
     </div>
+    </Layout>
+    </ProtectedRoute>
   );
 }

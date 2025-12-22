@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useGetSessionQuery, useRevokeAllSessionsMutation } from '@/store/api/adminApi';
 import { Loader2, Monitor, Smartphone, LogOut, AlertTriangle, Check } from 'lucide-react';
 import { useRouter } from 'next/router';
+import Layout from '@/components/layout/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -63,25 +65,35 @@ export default function SessionsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <ProtectedRoute>
+        <Layout>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </Layout>
+      </ProtectedRoute>
     );
   }
 
   if (error) {
     return (
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive">Error Loading Sessions</CardTitle>
-          <CardDescription>Failed to load your active sessions. Please try again later.</CardDescription>
-        </CardHeader>
-      </Card>
+      <ProtectedRoute>
+        <Layout>
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle className="text-destructive">Error Loading Sessions</CardTitle>
+              <CardDescription>Failed to load your active sessions. Please try again later.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Layout>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <ProtectedRoute>
+      <Layout>
+        <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Active Sessions</h1>
@@ -244,5 +256,7 @@ export default function SessionsPage() {
         </CardContent>
       </Card>
     </div>
+    </Layout>
+    </ProtectedRoute>
   );
 }
