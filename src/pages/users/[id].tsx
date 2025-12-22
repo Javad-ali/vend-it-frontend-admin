@@ -9,6 +9,20 @@ import Link from 'next/link';
 import { useGetUserDetailsQuery, useGetOrdersQuery } from '@/store/api/adminApi';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { formatUserId } from '@/lib/id-format';
+import type { Order } from '@/types/api';
+
+// Type for purchase history items from backend
+interface PurchaseHistoryItem {
+  id: string;
+  charge_id: string;
+  amount: number;
+  created_at: string;
+  transaction_id: string;
+  machine?: {
+    machine_tag: string;
+    location_address: string;
+  };
+}
 
 export default function UserDetails() {
   const router = useRouter();
@@ -149,7 +163,7 @@ export default function UserDetails() {
               <CardContent>
                 {history.length > 0 ? (
                   <ul className="space-y-3 max-h-64 overflow-y-auto">
-                    {history.slice(0, 10).map((purchase: any) => (
+                    {history.slice(0, 10).map((purchase: PurchaseHistoryItem) => (
                       <li key={purchase.id} className="flex justify-between border-b pb-2">
                         <div>
                           <p className="text-sm text-gray-600">
@@ -188,7 +202,7 @@ export default function UserDetails() {
                 <p>Loading orders...</p>
               ) : orders?.data?.orders && orders.data.orders.length > 0 ? (
                 <div className="space-y-3">
-                  {orders.data.orders.slice(0, 5).map((order: any) => (
+                  {orders.data.orders.slice(0, 5).map((order: Order) => (
                     <Link 
                       key={order.order_id} 
                       href={`/orders/${order.order_id}`}

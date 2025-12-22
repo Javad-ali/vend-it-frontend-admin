@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface BarChartProps {
   title: string;
-  data: any[];
+  data: Record<string, unknown>[];
   bars: Array<{
     dataKey: string;
     fill: string;

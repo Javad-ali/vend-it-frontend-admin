@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface LineChartProps {
   title: string;
-  data: any[];
+  data: Record<string, unknown>[];
   lines: Array<{
     dataKey: string;
     stroke: string;

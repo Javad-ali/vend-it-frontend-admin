@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export interface UseBulkSelectionReturn<T = any> {
+export interface UseBulkSelectionReturn<T> {
   selectedIds: Set<string>;
   isSelected: (id: string) => boolean;
   toggle: (id: string) => void;
@@ -10,7 +10,7 @@ export interface UseBulkSelectionReturn<T = any> {
   selectedCount: number;
 }
 
-export function useBulkSelection<T = any>(): UseBulkSelectionReturn<T> {
+export function useBulkSelection<T>(): UseBulkSelectionReturn<T> {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const isSelected = useCallback((id: string) => selectedIds.has(id), [selectedIds]);

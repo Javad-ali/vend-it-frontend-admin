@@ -5,7 +5,7 @@ export interface FilterState {
   search: string;
   status: string;
   dateRange: DateRange | undefined;
-  [key: string]: any;
+  [key: string]: string | DateRange | undefined;
 }
 
 export interface UseFiltersReturn {
@@ -13,7 +13,7 @@ export interface UseFiltersReturn {
   setSearch: (search: string) => void;
   setStatus: (status: string) => void;
   setDateRange: (range: DateRange | undefined) => void;
-  setFilter: (key: string, value: any) => void;
+  setFilter: (key: string, value: string | DateRange | undefined) => void;
   resetFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -39,7 +39,7 @@ export function useFilters(): UseFiltersReturn {
     setFilters((prev) => ({ ...prev, dateRange }));
   }, []);
 
-  const setFilter = useCallback((key: string, value: any) => {
+  const setFilter = useCallback((key: string, value: string | DateRange | undefined) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
