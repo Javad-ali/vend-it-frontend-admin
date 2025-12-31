@@ -110,7 +110,7 @@ export interface PaginatedFeedbackResponse {
 export interface ActivityLog {
   id: string;
   admin_name: string;
-  action: 'create' | 'update' | 'delete' | 'login' | 'logout';
+  action: string; // Flexible to support all backend action types (created, updated, deleted, login, logout, etc.)
   entity: string; // 'user', 'product', 'order', 'machine', etc.
   entity_id?: string;
   details?: string;
