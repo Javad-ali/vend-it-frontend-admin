@@ -249,7 +249,7 @@ export default function ActivityLogs() {
             </div>
           </div>
 
-          {/* Timeline View */}
+          {/* Timeline View with Enhanced Details */}
           <div className="space-y-4">
             {logs.length === 0 ? (
               <Card>
@@ -259,12 +259,12 @@ export default function ActivityLogs() {
               </Card>
             ) : (
               logs.map((log: ActivityLog) => (
-                <Card key={log.id} className="overflow-hidden">
+                <Card key={log.id} className="overflow-hidden hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <div className="mt-1 flex-shrink-0">{getActionIcon(log.action)}</div>
                       <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex items-center gap-2">
+                        <div className="mb-2 flex items-center gap-2 flex-wrap">
                           <Badge className={getActionColor(log.action)}>
                             {log.action.toUpperCase()}
                           </Badge>
@@ -272,27 +272,48 @@ export default function ActivityLogs() {
                             {log.entity}
                           </span>
                           {log.entity_id && (
-                            <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
-                              #{log.entity_id}
+                            <span className="font-mono text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                              #{log.entity_id.slice(0, 8)}
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                        
+                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 mb-2">
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            <span>{log.admin_name}</span>
+                            <span className="font-medium">{log.admin_name}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             <span>{formatDate(log.created_at)}</span>
                           </div>
                           {log.ip_address && (
-                            <span className="font-mono text-xs">{log.ip_address}</span>
+                            <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                              {log.ip_address}
+                            </span>
                           )}
                         </div>
+                        
                         {log.details && (
-                          <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                            {log.details}
+                          <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm border border-gray-200 dark:border-gray-700">
+                            <div className="text-gray-700 dark:text-gray-300 flex flex-wrap gap-2">
+                              {log.details.split(' | ').map((detail, idx) => (
+                                <span key={idx} className="inline-flex items-center">
+                                  {detail.includes(':') ? (
+                                    <>
+                                      <span className="text-gray-500 dark:text-gray-400 mr-1">
+                                        {detail.split(':')[0]}:
+                                      </span>
+                                      <span className="font-medium">
+                                        {detail.split(':').slice(1).join(':')}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span>{detail}</span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
