@@ -13,6 +13,7 @@ const Sidebar: React.FC = () => {
     { href: '/products', label: 'Products', icon: '📦' },
     { href: '/orders', label: 'Orders', icon: '🛒' },
     { href: '/campaigns', label: 'Campaigns', icon: '📢' },
+    { href: '/coupons', label: 'Coupons', icon: '🎟️' },
     { href: '/categories', label: 'Categories', icon: '📑' },
     { href: '/feedback', label: 'Feedback', icon: '💬' },
     { href: '/content', label: 'Content', icon: '📝' },

@@ -142,3 +142,64 @@ export interface PaginatedNotificationsResponse {
     unreadCount: number;
   };
 }
+
+// Discount Coupon Types
+export interface DiscountCoupon {
+  id: string;
+  code: string;
+  description?: string;
+  discount_type: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discount_value: number;
+  min_purchase_amount?: number;
+  max_discount_amount?: number;
+  max_uses_per_user?: number;
+  max_total_uses?: number;
+  current_total_uses: number;
+  valid_from: string;
+  valid_until: string;
+  is_active: boolean;
+  created_by_admin_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CouponUsage {
+  id: string;
+  coupon_id: string;
+  user_id: string;
+  payment_id?: string;
+  discount_applied: number;
+  original_amount: number;
+  final_amount: number;
+  used_at: string;
+  user_name?: string;
+  user_phone?: string;
+}
+
+export interface CouponStats {
+  totalRedemptions: number;
+  uniqueUsers: number;
+  totalDiscountGiven: number;
+  averageDiscount: number;
+}
+
+export interface CouponDetails {
+  coupon: DiscountCoupon;
+  stats: CouponStats;
+}
+
+export interface PaginatedCouponsResponse {
+  success: boolean;
+  data: {
+    coupons: DiscountCoupon[];
+    meta: PaginationMeta;
+  };
+}
+
+export interface CouponUsageResponse {
+  success: boolean;
+  data: {
+    history: CouponUsage[];
+    meta: PaginationMeta;
+  };
+}

@@ -7,6 +7,9 @@ import type {
   PaginatedProductsResponse,
   PaginatedOrdersResponse,
   PaginatedFeedbackResponse,
+  PaginatedCouponsResponse,
+  CouponDetails,
+  CouponUsageResponse,
 } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -52,6 +55,7 @@ export const adminApi = createApi({
     'Sessions',
     'Cache',
     'Analytics',
+    'Coupons',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -374,6 +378,86 @@ export const adminApi = createApi({
       }),
       invalidatesTags: ['Cache'],
     }),
+
+    // Coupon Management
+    getCoupons: builder.query<
+      PaginatedCouponsResponse,
+      {
+        page?: number;
+        limit?: number;
+        status?: 'active' | 'inactive' | 'all';
+        search?: string;
+      } | undefined
+    >({
+      query: (params) => ({
+        url: '/admin/coupons',
+        params: params || undefined,
+      }),
+      providesTags: ['Coupons'],
+    }),
+
+    getCouponDetails: builder.query<
+      { success: boolean; data: CouponDetails },
+      string
+    >({
+      query: (id) => `/admin/coupons/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Coupons', id }],
+    }),
+
+    createCoupon: builder.mutation<any, any>({
+      query: (data) => ({
+        url: '/admin/coupons',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Coupons'],
+    }),
+
+    updateCoupon: builder.mutation<any, { id: string; data: any }>({
+      query: ({ id, data }) => ({
+        url: `/admin/coupons/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        'Coupons',
+        { type: 'Coupons', id },
+      ],
+    }),
+
+    deleteCoupon: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/admin/coupons/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Coupons'],
+    }),
+
+    deactivateCoupon: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/admin/coupons/${id}/deactivate`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: (result, error, id) => [
+        'Coupons',
+        { type: 'Coupons', id },
+      ],
+    }),
+
+    getCouponUsage: builder.query<
+      CouponUsageResponse,
+      {
+        id: string;
+        page?: number;
+        limit?: number;
+      }
+    >({
+      query: ({ id, ...params }) => ({
+        url: `/admin/coupons/${id}/usage`,
+        params,
+      }),
+      providesTags: (result, error, { id }) => [{ type: 'Coupons', id }],
+    }),
   }),
 });
 
@@ -421,4 +505,11 @@ export const {
   useGetChartDataQuery,
   useGetCacheStatsQuery,
   useClearCacheMutation,
+  useGetCouponsQuery,
+  useGetCouponDetailsQuery,
+  useCreateCouponMutation,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
+  useDeactivateCouponMutation,
+  useGetCouponUsageQuery,
 } = adminApi;
