@@ -305,7 +305,7 @@ export default function CouponDetails() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Total Redemptions</p>
-                    <p className="text-2xl font-bold">{stats.totalRedemptions}</p>
+                    <p className="text-2xl font-bold">{stats.totalRedemptions || 0}</p>
                   </div>
                 </div>
               </div>
@@ -317,7 +317,7 @@ export default function CouponDetails() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Unique Users</p>
-                    <p className="text-2xl font-bold">{stats.uniqueUsers}</p>
+                    <p className="text-2xl font-bold">{stats.uniqueUsers || 0}</p>
                   </div>
                 </div>
               </div>
@@ -329,7 +329,7 @@ export default function CouponDetails() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Total Discount Given</p>
-                    <p className="text-2xl font-bold">{stats.totalDiscountGiven.toFixed(3)} KWD</p>
+                    <p className="text-2xl font-bold">{(stats.totalDiscountGiven || 0).toFixed(3)} KWD</p>
                   </div>
                 </div>
               </div>
@@ -341,7 +341,7 @@ export default function CouponDetails() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Avg Discount</p>
-                    <p className="text-2xl font-bold">{stats.averageDiscount.toFixed(3)} KWD</p>
+                    <p className="text-2xl font-bold">{(stats.averageDiscount || 0).toFixed(3)} KWD</p>
                   </div>
                 </div>
               </div>
