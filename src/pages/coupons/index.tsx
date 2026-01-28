@@ -153,8 +153,9 @@ export default function Coupons() {
       maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : undefined,
       maxUsesPerUser: formData.maxUsesPerUser ? parseInt(formData.maxUsesPerUser) : undefined,
       maxTotalUses: formData.maxTotalUses ? parseInt(formData.maxTotalUses) : undefined,
-      validFrom: formData.validFrom,
-      validUntil: formData.validUntil,
+      // Convert datetime-local to ISO 8601 format with timezone
+      validFrom: new Date(formData.validFrom).toISOString(),
+      validUntil: new Date(formData.validUntil).toISOString(),
       isActive: formData.isActive,
     };
 
