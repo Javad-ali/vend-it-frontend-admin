@@ -24,11 +24,11 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 border-r bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 flex flex-col h-full overflow-y-auto">
-      <div className="p-6">
+    <aside className="w-64 border-r bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 flex flex-col h-full overflow-hidden">
+      <div className="p-6 shrink-0">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Admin Panel</h1>
       </div>
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto">
         {menuItems.map((item) => (
           <Link
             key={item.href}
