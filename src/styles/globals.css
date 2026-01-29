@@ -78,8 +78,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -129,4 +127,22 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+Minimal Scrollbar Styles ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-200 dark:bg-gray-700;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-300 dark:bg-gray-600;
 }
