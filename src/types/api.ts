@@ -203,3 +203,121 @@ export interface CouponUsageResponse {
     meta: PaginationMeta;
   };
 }
+
+export interface CouponCreatePayload {
+  code: string;
+  description?: string;
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discountValue: number;
+  minPurchaseAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsesPerUser?: number;
+  maxTotalUses?: number | null;
+  validFrom: string;
+  validUntil: string;
+  isActive?: boolean;
+}
+
+export interface CouponUpdatePayload {
+  code?: string;
+  description?: string;
+  discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discountValue?: number;
+  minPurchaseAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsesPerUser?: number;
+  maxTotalUses?: number | null;
+  validFrom?: string;
+  validUntil?: string;
+  isActive?: boolean;
+}
+
+export interface CouponResponse {
+  success: boolean;
+  message: string;
+  data: DiscountCoupon;
+}
+
+
+// Voucher Types
+export interface Voucher {
+  id: string;
+  code: string;
+  description?: string;
+  amount: number;
+  qr_code_url?: string;
+  max_uses_per_user: number;
+  max_total_uses?: number;
+  current_total_uses: number;
+  valid_from: string;
+  valid_until: string;
+  is_active: boolean;
+  created_by_admin_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VoucherRedemption {
+  id: string;
+  user_name?: string;
+  user_phone?: string;
+  amount_credited: number;
+  redeemed_at: string;
+}
+
+export interface VoucherStats {
+  totalRedemptions: number;
+  uniqueUsers: number;
+  totalAmountCredited: number;
+  averageAmount: number;
+}
+
+export interface VoucherDetails {
+  voucher: Voucher;
+  stats: VoucherStats;
+}
+
+export interface PaginatedVouchersResponse {
+  success: boolean;
+  data: {
+    vouchers: Voucher[];
+    meta: PaginationMeta;
+  };
+}
+
+export interface VoucherRedemptionResponse {
+  success: boolean;
+  data: {
+    redemptions: VoucherRedemption[];
+    meta: PaginationMeta;
+  };
+}
+
+export interface VoucherCreatePayload {
+  code: string;
+  description?: string;
+  amount: number;
+  maxUsesPerUser?: number;
+  maxTotalUses?: number | null;
+  validFrom: string;
+  validUntil: string;
+  isActive?: boolean;
+}
+
+export interface VoucherUpdatePayload {
+  code?: string;
+  description?: string;
+  amount?: number;
+  maxUsesPerUser?: number;
+  maxTotalUses?: number | null;
+  validFrom?: string;
+  validUntil?: string;
+  isActive?: boolean;
+}
+
+export interface VoucherResponse {
+  success: boolean;
+  message: string;
+  data: Voucher;
+}
+

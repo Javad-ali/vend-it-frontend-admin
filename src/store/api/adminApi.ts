@@ -10,6 +10,15 @@ import type {
   PaginatedCouponsResponse,
   CouponDetails,
   CouponUsageResponse,
+  CouponCreatePayload,
+  CouponUpdatePayload,
+  CouponResponse,
+  PaginatedVouchersResponse,
+  VoucherDetails,
+  VoucherRedemptionResponse,
+  VoucherCreatePayload,
+  VoucherUpdatePayload,
+  VoucherResponse,
 } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -56,6 +65,7 @@ export const adminApi = createApi({
     'Cache',
     'Analytics',
     'Coupons',
+    'Vouchers',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -404,7 +414,7 @@ export const adminApi = createApi({
       providesTags: (result, error, id) => [{ type: 'Coupons', id }],
     }),
 
-    createCoupon: builder.mutation<any, any>({
+    createCoupon: builder.mutation<CouponResponse, CouponCreatePayload>({
       query: (data) => ({
         url: '/admin/coupons',
         method: 'POST',
@@ -413,7 +423,7 @@ export const adminApi = createApi({
       invalidatesTags: ['Coupons'],
     }),
 
-    updateCoupon: builder.mutation<any, { id: string; data: any }>({
+    updateCoupon: builder.mutation<CouponResponse, { id: string; data: CouponUpdatePayload }>({
       query: ({ id, data }) => ({
         url: `/admin/coupons/${id}`,
         method: 'PUT',
@@ -425,7 +435,7 @@ export const adminApi = createApi({
       ],
     }),
 
-    deleteCoupon: builder.mutation<any, string>({
+    deleteCoupon: builder.mutation<{ success: boolean; message: string }, string>({
       query: (id) => ({
         url: `/admin/coupons/${id}`,
         method: 'DELETE',
@@ -433,7 +443,7 @@ export const adminApi = createApi({
       invalidatesTags: ['Coupons'],
     }),
 
-    deactivateCoupon: builder.mutation<any, string>({
+    deactivateCoupon: builder.mutation<CouponResponse, string>({
       query: (id) => ({
         url: `/admin/coupons/${id}/deactivate`,
         method: 'PATCH',
@@ -457,6 +467,86 @@ export const adminApi = createApi({
         params,
       }),
       providesTags: (result, error, { id }) => [{ type: 'Coupons', id }],
+    }),
+
+    // Voucher Management
+    getVouchers: builder.query<
+      PaginatedVouchersResponse,
+      {
+        page?: number;
+        limit?: number;
+        status?: 'active' | 'inactive' | 'all';
+        search?: string;
+      } | undefined
+    >({
+      query: (params) => ({
+        url: '/admin/vouchers',
+        params: params || undefined,
+      }),
+      providesTags: ['Vouchers'],
+    }),
+
+    getVoucherDetails: builder.query<
+      { success: boolean; data: VoucherDetails },
+      string
+    >({
+      query: (id) => `/admin/vouchers/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Vouchers', id }],
+    }),
+
+    createVoucher: builder.mutation<VoucherResponse, VoucherCreatePayload>({
+      query: (data) => ({
+        url: '/admin/vouchers',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Vouchers'],
+    }),
+
+    updateVoucher: builder.mutation<VoucherResponse, { id: string; data: VoucherUpdatePayload }>({
+      query: ({ id, data }) => ({
+        url: `/admin/vouchers/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        'Vouchers',
+        { type: 'Vouchers', id },
+      ],
+    }),
+
+    deleteVoucher: builder.mutation<{ success: boolean; message: string }, string>({
+      query: (id) => ({
+        url: `/admin/vouchers/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Vouchers'],
+    }),
+
+    toggleVoucherStatus: builder.mutation<VoucherResponse, string>({
+      query: (id) => ({
+        url: `/admin/vouchers/${id}/toggle`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: (result, error, id) => [
+        'Vouchers',
+        { type: 'Vouchers', id },
+      ],
+    }),
+
+    getVoucherRedemptions: builder.query<
+      VoucherRedemptionResponse,
+      {
+        id: string;
+        page?: number;
+        limit?: number;
+      }
+    >({
+      query: ({ id, ...params }) => ({
+        url: `/admin/vouchers/${id}/redemptions`,
+        params,
+      }),
+      providesTags: (result, error, { id }) => [{ type: 'Vouchers', id }],
     }),
   }),
 });
@@ -512,4 +602,11 @@ export const {
   useDeleteCouponMutation,
   useDeactivateCouponMutation,
   useGetCouponUsageQuery,
+  useGetVouchersQuery,
+  useGetVoucherDetailsQuery,
+  useCreateVoucherMutation,
+  useUpdateVoucherMutation,
+  useDeleteVoucherMutation,
+  useToggleVoucherStatusMutation,
+  useGetVoucherRedemptionsQuery,
 } = adminApi;
