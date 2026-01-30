@@ -19,6 +19,14 @@ import type {
   VoucherCreatePayload,
   VoucherUpdatePayload,
   VoucherResponse,
+  StepChallengesListResponse,
+  StepChallengeDetailsResponse,
+  StepChallengeCreatePayload,
+  StepChallengeUpdatePayload,
+  StepChallengeResponse,
+  StepChallengeParticipantsResponse,
+  StepChallengeLeaderboardResponse,
+  StepChallengeFinalizeResponse,
 } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -66,6 +74,7 @@ export const adminApi = createApi({
     'Analytics',
     'Coupons',
     'Vouchers',
+    'StepChallenges',
   ],
   endpoints: (builder) => ({
     // Auth
@@ -548,6 +557,99 @@ export const adminApi = createApi({
       }),
       providesTags: (result, error, { id }) => [{ type: 'Vouchers', id }],
     }),
+
+    // ============ Step Challenges ============
+    getStepChallenges: builder.query<
+      StepChallengesListResponse,
+      { page?: number; limit?: number; search?: string; status?: string; machineId?: string }
+    >({
+      query: (params = {}) => ({
+        url: '/admin/step-challenges',
+        params,
+      }),
+      providesTags: ['StepChallenges'],
+    }),
+
+    getStepChallengeDetails: builder.query<StepChallengeDetailsResponse, string>({
+      query: (id) => `/admin/step-challenges/${id}`,
+      providesTags: (result, error, id) => [{ type: 'StepChallenges', id }],
+    }),
+
+    createStepChallenge: builder.mutation<StepChallengeResponse, StepChallengeCreatePayload>({
+      query: (data) => ({
+        url: '/admin/step-challenges',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['StepChallenges'],
+    }),
+
+    updateStepChallenge: builder.mutation<
+      StepChallengeResponse,
+      { id: string; data: StepChallengeUpdatePayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `/admin/step-challenges/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        'StepChallenges',
+        { type: 'StepChallenges', id },
+      ],
+    }),
+
+    deleteStepChallenge: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/admin/step-challenges/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['StepChallenges'],
+    }),
+
+    toggleStepChallengeStatus: builder.mutation<StepChallengeResponse, string>({
+      query: (id) => ({
+        url: `/admin/step-challenges/${id}/toggle`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: (result, error, id) => [
+        'StepChallenges',
+        { type: 'StepChallenges', id },
+      ],
+    }),
+
+    getStepChallengeLeaderboard: builder.query<
+      StepChallengeLeaderboardResponse,
+      { id: string; limit?: number }
+    >({
+      query: ({ id, limit = 50 }) => ({
+        url: `/admin/step-challenges/${id}/leaderboard`,
+        params: { limit },
+      }),
+      providesTags: (result, error, { id }) => [{ type: 'StepChallenges', id }],
+    }),
+
+    getStepChallengeParticipants: builder.query<
+      StepChallengeParticipantsResponse,
+      { id: string; page?: number; limit?: number }
+    >({
+      query: ({ id, ...params }) => ({
+        url: `/admin/step-challenges/${id}/participants`,
+        params,
+      }),
+      providesTags: (result, error, { id }) => [{ type: 'StepChallenges', id }],
+    }),
+
+    finalizeStepChallenge: builder.mutation<StepChallengeFinalizeResponse, string>({
+      query: (id) => ({
+        url: `/admin/step-challenges/${id}/finalize`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: (result, error, id) => [
+        'StepChallenges',
+        { type: 'StepChallenges', id },
+      ],
+    }),
   }),
 });
 
@@ -609,4 +711,14 @@ export const {
   useDeleteVoucherMutation,
   useToggleVoucherStatusMutation,
   useGetVoucherRedemptionsQuery,
+  // Step Challenges
+  useGetStepChallengesQuery,
+  useGetStepChallengeDetailsQuery,
+  useCreateStepChallengeMutation,
+  useUpdateStepChallengeMutation,
+  useDeleteStepChallengeMutation,
+  useToggleStepChallengeStatusMutation,
+  useGetStepChallengeLeaderboardQuery,
+  useGetStepChallengeParticipantsQuery,
+  useFinalizeStepChallengeMutation,
 } = adminApi;

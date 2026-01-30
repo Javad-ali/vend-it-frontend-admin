@@ -16,6 +16,7 @@ export interface User {
 }
 
 export interface Machine {
+  id: string;
   machine_u_id: string;
   machine_name?: string;
   location?: string;
@@ -321,3 +322,141 @@ export interface VoucherResponse {
   data: Voucher;
 }
 
+// Step Challenge Types
+export interface BadgeThreshold {
+  steps: number;
+  badge_name: string;
+  badge_icon: string;
+}
+
+export interface StepChallenge {
+  id: string;
+  name: string;
+  description: string | null;
+  machine_id: string | null;
+  location_name: string | null;
+  location_latitude: number | null;
+  location_longitude: number | null;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  badge_thresholds: BadgeThreshold[];
+  created_by_admin_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StepChallengeParticipant {
+  id: string;
+  total_steps: number;
+  last_step_update: string | null;
+  registered_at: string;
+  user: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    phone_number: string;
+  };
+}
+
+export interface StepChallengeLeaderboardEntry {
+  rank: number;
+  user_id: string;
+  user_name: string;
+  total_steps: number;
+  last_update: string | null;
+}
+
+export interface StepChallengeStats {
+  totalParticipants: number;
+  totalSteps: number;
+  averageSteps: number;
+}
+
+export interface StepChallengeCreatePayload {
+  name: string;
+  description?: string | null;
+  machineId?: string | null;
+  locationName?: string | null;
+  locationLatitude?: number | null;
+  locationLongitude?: number | null;
+  startDate: string;
+  endDate: string;
+  isActive?: boolean;
+  badgeThresholds?: BadgeThreshold[];
+}
+
+export interface StepChallengeUpdatePayload {
+  name?: string;
+  description?: string | null;
+  machineId?: string | null;
+  locationName?: string | null;
+  locationLatitude?: number | null;
+  locationLongitude?: number | null;
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+  badgeThresholds?: BadgeThreshold[];
+}
+
+export interface StepChallengeResponse {
+  success: boolean;
+  message: string;
+  data: StepChallenge;
+}
+
+export interface StepChallengeDetailsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    challenge: StepChallenge;
+    stats: StepChallengeStats;
+    topThree: StepChallengeLeaderboardEntry[];
+  };
+}
+
+export interface StepChallengesListResponse {
+  success: boolean;
+  message: string;
+  data: {
+    challenges: StepChallenge[];
+    meta: PaginationMeta;
+  };
+}
+
+export interface StepChallengeParticipantsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    participants: StepChallengeParticipant[];
+    meta: PaginationMeta;
+  };
+}
+
+export interface StepChallengeLeaderboardResponse {
+  success: boolean;
+  message: string;
+  data: {
+    leaderboard: StepChallengeLeaderboardEntry[];
+  };
+}
+
+export interface UserBadge {
+  id: string;
+  user_id: string;
+  challenge_id: string | null;
+  badge_name: string;
+  badge_type: 'steps' | 'ranking' | 'completion';
+  badge_icon: string | null;
+  steps_achieved: number | null;
+  earned_at: string;
+}
+
+export interface StepChallengeFinalizeResponse {
+  success: boolean;
+  message: string;
+  data: {
+    challenge: StepChallenge;
+    awardedBadges: UserBadge[];
+  };
+}
