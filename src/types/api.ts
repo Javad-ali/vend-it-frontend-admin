@@ -363,6 +363,7 @@ export interface StepChallengeLeaderboardEntry {
   rank: number;
   user_id: string;
   user_name: string;
+  user_profile: string | null;
   total_steps: number;
   last_update: string | null;
 }
